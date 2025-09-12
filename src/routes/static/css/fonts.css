@@ -1,0 +1,21 @@
+@font-face {
+    font-family: IBM_Plex_Sans_Italic;
+    src: url("/static/fonts/IBM_Plex_Sans/IBMPlexSans-Italic-VariableFont.ttf");
+}
+
+@font-face {
+    font-family: IBM_Plex_Sans;
+    src: url("/static/fonts/IBM_Plex_Sans/IBMPlexSans-VariableFont.ttf");
+}
+
+body {
+    font-family: IBM_Plex_Sans;
+}
+
+h1 {
+    font-size: large;
+}
+
+h2 {
+    font-size: larger;
+}
