@@ -45,6 +45,7 @@ require (
 )
 
 require (
+	github.com/aws/aws-sdk-go v1.55.8
 	github.com/aws/aws-sdk-go-v2/config v1.31.8
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/sessions v1.4.0

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>OTP Token</title>
+  </head>
+  <body>
+    <p>Hello,</p>
+    <p>
+      A one time code was requested on {{.SiteName}} for {{.Tenant}}. If you did not request this, you can safely ignore this message.
+      Your one time code is {{.Code}}
+    </p>
+    <footer>
+        {{ if .ServiceProvider }}
+            <a href="{{.ServiceProvider}}">Service Provider</a>
+        {{- end}}
+        {{ if .PrivacyPolicy }}
+            <a href="{{.PrivacyPolicy}}">Privacy Policy</a>
+        {{- end}}
+        {{ if .SiteName }}
+            {{.SiteName}}
+        {{- end}}
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+Hello,  
+
+A one time code was requested on {{.SiteName}} for {{.Tenant}}. If you did not request this, you can safely ignore this message.
+Your one time code is {{.Code}}
+
+{{ if .ServiceProvider }}
+Service Provider: {{.ServiceProvider}} 
+{{- end}}
+{{ if .PrivacyPolicy }}
+Privacy Policy: {{.PrivacyPolicy}} 
+{{- end}}
