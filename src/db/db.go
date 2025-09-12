@@ -31,7 +31,7 @@ func MigrateDb() error {
 	}()
 
 	// Migrate the schema
-	if err := db.AutoMigrate(&models.Invite{}); err != nil {
+	if err := db.AutoMigrate(&models.Invite{}, &models.OTP{}); err != nil {
 		return err
 	}
 

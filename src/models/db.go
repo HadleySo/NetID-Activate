@@ -1,7 +1,6 @@
 package models
 
 import (
-	"math/big"
 	"time"
 
 	"github.com/google/uuid"
@@ -32,6 +31,6 @@ type Invite struct {
 
 type OTP struct {
 	Base
-	Invite uuid.UUID
-	Code   big.Int
+	InviteID string
+	Code     int
 }

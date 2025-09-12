@@ -51,7 +51,7 @@ func SaveOTP(email string, otpCode *big.Int) error {
 	inviteID := userInvite.ID
 
 	// Write OTP code
-	otpEntry := models.OTP{Code: *otpCode, Invite: inviteID}
+	otpEntry := models.OTP{Code: int(otpCode.Int64()), InviteID: inviteID.String()}
 	db.Create(&otpEntry)
 
 	return nil
