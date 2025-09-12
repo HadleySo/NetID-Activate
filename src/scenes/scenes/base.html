@@ -1,0 +1,82 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.PageTitle}}</title>
+
+    {{ if .FaviconURL }}
+        <link rel="icon" href="{{.FaviconURL}}" type="image/x-icon">
+    {{- end}}
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/fonts.css">
+    <link rel="stylesheet" href="/static/css/global.css">
+
+    <meta name="generator" content="github.com/HadleySo/NetID-Activate">
+
+    {{ template "head" . }}
+</head>
+
+<body>
+    
+
+    <div class="container-fluid">
+
+        <div class="row d-flex py-2" id="search_header">
+            <nav class="navbar py-0">
+                <div class="container-fluid">
+                    <a class="navbar-brand ps-4 py-0" href="/">
+                        {{ if gt (len .LogoURL) 1 }}
+                            <img src="{{.LogoURL}}" alt="" style="max-height: 50px; width: auto;" class="img-fluid"> <span class="fw-bolder">{{.PageTitle}}</span>
+                        {{ else }}
+                            <span class="fw-bolder">{{.PageTitle}}</span>
+                        {{end}}
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+
+        <div class="container-fluid">
+
+            {{ template "body" . }}
+
+            
+        </div>
+
+    </div>
+
+    <style>
+        .btn-primary {
+            --bs-btn-color: #fff;
+            --bs-btn-bg: rgb(226, 121, 59);
+            --bs-btn-border-color: rgb(226, 121, 59);
+            --bs-btn-hover-color: #fff;
+            --bs-btn-hover-bg: rgb(221, 95, 22);
+            --bs-btn-hover-border-color: rgb(221, 95, 22);
+            --bs-btn-focus-shadow-rgb: 49,132,253;
+            --bs-btn-active-color: #fff;
+            --bs-btn-active-bg: rgb(221, 95, 22);
+            --bs-btn-active-border-color: rgb(221, 95, 22);
+            --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+            --bs-btn-disabled-color: #fff;
+            --bs-btn-disabled-bg: rgb(226, 121, 59);
+            --bs-btn-disabled-border-color: rgb(226, 121, 59);
+        }
+        .form-control:focus {
+            border-top-color: rgb(226, 121, 59);
+            border-right-color: rgb(226, 121, 59);
+            border-bottom-color: rgb(226, 121, 59);
+            border-left-color: rgb(226, 121, 59);
+            box-shadow: 0 0 0 .25rem RGBA(226, 121, 59, 0.25);
+        }
+    </style>
+
+</body>
+
+</html>
+{{end}}

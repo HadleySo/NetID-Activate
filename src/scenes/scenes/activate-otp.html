@@ -1,0 +1,52 @@
+{{define "head"}}{{end}}
+
+
+
+{{define "body"}}
+
+    <div class="wrapper">
+        <div class="landerCenter">
+            <h3>
+                One Time Code
+            </h3>
+            <p class="pb-1">
+                <small>
+                    A one time code was sent to {{.ActivateEmail}}. 
+                </small>
+            </p>
+            <form action="/otp" id="form14" method="post" onsubmit="">
+                <div class="form-floating mb-3">
+                    <input type="text" name="activateEmail" value="{{.ActivateEmail}}" hidden>
+                    <input type="number" class="form-control" id="activateOTP" name="activateOTP" placeholder="Code" autofocus="autofocus" autocapitalize="off" autocomplete="off" required="">
+                    <label for="activateOTP">Code</label>
+                </div>
+                <div class="form-floating mb-3 pt-3">
+                    <button type="submit" class="btn btn-primary w-100" style="font-size: 0.98rem;">Submit</button>
+                </div>     
+            </form>
+            <small>
+                <p class="pt-3">
+                    If you did not receive an email, check that your invite was sent to {{.ActivateEmail}}, if not <a href="/" class="text-reset">restart</a> with the invited email address.
+                </p>
+            </small>
+
+        </div>
+
+    </div>
+
+    <style>
+        .wrapper {
+            display: flex;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh;
+        }
+        .landerCenter {
+            width: 390px;
+            max-width: 390px;
+            align-self: center;
+        }
+    </style>
+{{end}}

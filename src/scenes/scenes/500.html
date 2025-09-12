@@ -1,0 +1,38 @@
+{{define "head"}}{{end}}
+
+
+
+{{define "body"}}
+
+
+    <div class="wrapper">
+        <div class="centerError">
+            <h2>Error</h2>
+
+            <br>
+            <p>
+                We're sorry, there has been an error processing your request. 
+            </p>
+            <p>
+                Please try again in a few moments.
+            </p>
+        </div>
+    </div>
+
+    <style>
+        .wrapper {
+            display: flex;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh;
+        }
+        .centerError {
+            width: 300px;
+            max-width: 390px;
+            align-self: center;
+        }
+    </style>
+
+{{end}}

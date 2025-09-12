@@ -11,7 +11,9 @@ var Router = mux.NewRouter()
 
 func Main() {
 	static()
+	errorRoutes()
 	authRoutes()
 	landing()
+	activate()
 	log.Println("Routes registered [src/routes/routes]")
 }
