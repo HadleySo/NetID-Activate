@@ -10,6 +10,8 @@ import (
 var Router = mux.NewRouter()
 
 func Main() {
+	static()
 	authRoutes()
+	landing()
 	log.Println("Routes registered [src/routes/routes]")
 }

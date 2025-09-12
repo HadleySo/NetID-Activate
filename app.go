@@ -27,7 +27,7 @@ func main() {
 	}
 
 	// Register Routes
-	// routes.Main()
+	routes.Main()
 
 	// Listen
 	port := os.Getenv("SERVER_PORT")
