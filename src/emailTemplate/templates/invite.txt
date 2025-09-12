@@ -1,0 +1,11 @@
+Hello,  
+
+You have been invited to create an account in {{.Tenant}}. Please visit {{.SERVER_HOSTNAME}} to accept.
+
+
+{{ if .ServiceProvider }}
+Service Provider: {{.ServiceProvider}} 
+{{- end}}
+{{ if .PrivacyPolicy }}
+Privacy Policy: {{.PrivacyPolicy}} 
+{{- end}}

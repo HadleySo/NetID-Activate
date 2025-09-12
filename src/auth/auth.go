@@ -22,6 +22,7 @@ var (
 // Generate HTTP error code and render login page to redirect
 func UnauthorizedLogin(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/login.html"))
+	http.SetCookie(w, &http.Cookie{Name: "FLASH_PATH", Value: r.RequestURI, Path: "/", MaxAge: 300})
 	w.WriteHeader(http.StatusUnauthorized)
 	tmpl.Execute(w, nil)
 }
@@ -63,7 +64,13 @@ func MarshallUserInfo(w http.ResponseWriter, r *http.Request, tokens *oidc.Token
 	session_IDCLAIM_AUTH.Values["AUTHENTICATED"] = true
 	session_IDCLAIM_AUTH.Save(r, w)
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	FLASH_PATH, errCookie := r.Cookie("FLASH_PATH")
+	if errCookie != nil {
+		http.SetCookie(w, &http.Cookie{Name: "FLASH_PATH", Value: "", Path: "/", MaxAge: 0})
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+	http.SetCookie(w, &http.Cookie{Name: "FLASH_PATH", Value: "", Path: "/", MaxAge: 0})
+	http.Redirect(w, r, FLASH_PATH.Value, http.StatusSeeOther)
 
 }
 

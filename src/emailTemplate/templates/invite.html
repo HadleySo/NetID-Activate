@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{{.Tenant}} Invite</title>
+  </head>
+  <body>
+    <p>Hello,</p>
+    <p>
+      You have been invited to create an account in {{.Tenant}}. Please visit <a href="{{.SERVER_HOSTNAME}}">{{.SERVER_HOSTNAME}}</a> to accept.
+    </p>
+    <footer>
+        {{ if .ServiceProvider }}
+            <a href="{{.ServiceProvider}}">Service Provider</a>
+        {{- end}}
+        {{ if .PrivacyPolicy }}
+            <a href="{{.PrivacyPolicy}}">Privacy Policy</a>
+        {{- end}}
+        {{ if .SiteName }}
+            {{.SiteName}}
+        {{- end}}
+    </footer>
+  </body>
+</html>

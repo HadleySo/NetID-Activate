@@ -15,5 +15,6 @@ func Main() {
 	authRoutes()
 	landing()
 	activate()
+	invite()
 	log.Println("Routes registered [src/routes/routes]")
 }
