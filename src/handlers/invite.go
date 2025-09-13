@@ -11,6 +11,7 @@ import (
 
 	"github.com/hadleyso/netid-activate/src/auth"
 	"github.com/hadleyso/netid-activate/src/db"
+	"github.com/hadleyso/netid-activate/src/mailer"
 	"github.com/hadleyso/netid-activate/src/models"
 	idm "github.com/hadleyso/netid-activate/src/redhat-idm"
 	"github.com/hadleyso/netid-activate/src/scenes"
@@ -115,10 +116,14 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	// Add to DB
 	dbSuccess, err := db.HandleInvite(firstName, lastName, email, state, country, affiliation)
 	if dbSuccess == false {
-		http.Redirect(w, r, "/500", http.StatusSeeOther)
+		http.Redirect(w, r, "/500?error=DB+HandleInvite+error", http.StatusSeeOther)
 		return
 	}
 
 	// Send email
-	panic("NOT IMPLEMENTED")
+	errMail := mailer.HandleSendInvite(email)
+	if errMail != nil {
+		http.Redirect(w, r, "/500?error=mail+HandleSendInvite+error", http.StatusSeeOther)
+		return
+	}
 }
