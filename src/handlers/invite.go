@@ -86,6 +86,28 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check if already invited
+	isInvited, _ := db.EmailValid(email)
+	if isInvited {
+		tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
+		tmpl.ExecuteTemplate(w, "base",
+			struct {
+				Tile    string
+				Message string
+				models.PageBase
+			}{
+				Message: "User already invited",
+				Tile:    "Invite Form",
+				PageBase: models.PageBase{
+					PageTitle:  os.Getenv("SITE_NAME"),
+					FaviconURL: os.Getenv("FAVICON_URL"),
+					LogoURL:    os.Getenv("LOGO_URL"),
+				},
+			},
+		)
+		return
+	}
+
 	// Check if email in directory
 	emailExists, err := idm.CheckEmailExists(email)
 	if err != nil {

@@ -77,6 +77,14 @@ func EmailOTPValid(activateEmail string, activateOTP string) (string, bool, erro
 	return otpEntry.InviteID, true, nil
 }
 
+// Invalidate OTP code
+// Reset email counter
+func ClaimOTP(activateEmail string, activateOTP string) {
+	db := DbConnect()
+	db.Where("Code = ?", activateOTP).Delete(&models.OTP{})
+	db.Where("Email = ?", activateEmail).Delete(&models.EmailRate{})
+}
+
 // Get invite details
 func InviteDetails(inviteID string) (models.Invite, error) {
 	db := DbConnect()
