@@ -269,21 +269,32 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	passwd, err := idm.MakeUser(invite)
+	// Call maker
+	passwd, err := idm.HandleMakeUser(invite, loginName)
 	if err != nil {
 		http.Redirect(w, r, "/500", http.StatusSeeOther)
 		return
 	}
 
-	tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
+	// Delete invite
+	db.DeleteInviteEmail(invite.Email)
+
+	// Show success message
+	tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/activate-success.html", "scenes/base.html"))
 	tmpl.ExecuteTemplate(w, "base",
 		struct {
-			Tile    string
-			Message string
+			FirstName     string
+			Tenant        string
+			LoginName     string
+			Password      string
+			LoginRedirect string
 			models.PageBase
 		}{
-			Message: "Activated - password: " + passwd + ". Login at: " + os.Getenv("LOGIN_REDIRECT"),
-			Tile:    "Activation",
+			FirstName:     invite.FirstName,
+			Tenant:        os.Getenv("TENANT_NAME"),
+			LoginName:     loginName,
+			Password:      passwd,
+			LoginRedirect: os.Getenv("LOGIN_REDIRECT"),
 			PageBase: models.PageBase{
 				PageTitle:  os.Getenv("SITE_NAME"),
 				FaviconURL: os.Getenv("FAVICON_URL"),
@@ -291,6 +302,5 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 	)
-	return
 
 }

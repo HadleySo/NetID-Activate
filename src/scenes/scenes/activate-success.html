@@ -1,0 +1,56 @@
+{{define "head"}}{{end}}
+
+
+
+{{define "body"}}
+
+<div class="wrapper">
+    <div class="landerCenter">
+        <h3>
+            Welcome {{.FirstName}}
+        </h3>
+
+        <p class="pb-1">
+            Your account has been activated!
+        </p>
+        <ul>
+            <li>Your tenant: <b><span class="user-select-all">{{.Tenant}}</span></b></li>
+            <li>Your login name: <b><span class="user-select-all">{{.LoginName}}</span></b></li>
+        </ul>
+        <p class="pb-1">
+            Your temporary password is <b><span class="user-select-all">{{.Password}}</span></b>, please log in to <a href="{{.LoginRedirect}}">{{.LoginRedirect}}</a> to set your password.
+        </p>
+
+    </div>
+
+</div>
+
+
+
+<style>
+    .wrapper {
+        display: flex;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 80vh;
+    }
+
+    .landerCenter {
+        width: 390px;
+        max-width: 390px;
+        align-self: center;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+</style>
+{{end}}

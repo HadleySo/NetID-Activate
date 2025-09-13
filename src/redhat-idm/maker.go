@@ -1,13 +1,20 @@
 package idm
 
 import (
+	"context"
+	"fmt"
 	"log"
+	"math/rand"
+	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/hadleyso/netid-activate/src/models"
+	"github.com/ybbus/jsonrpc/v3"
 )
 
-func MakeUser(invite models.Invite) (string, error) {
+func HandleMakeUser(invite models.Invite, loginName string) (string, error) {
 
 	// Create client
 	client, errClient := newHTTPClient(false)
@@ -25,9 +32,86 @@ func MakeUser(invite models.Invite) (string, error) {
 		return "", errLogin
 	}
 
+	// Generate password
+	pin := randPIN()
+
 	// Create user
+	_, err := makeUser(client, loginName, invite.Email, invite.FirstName, invite.LastName, invite.Country, invite.Affiliation, pin, invite.State)
+	if err != nil {
+		return "", err
+
+	}
 
 	// Add to groups
 
-	return "", nil
+	return pin, nil
+}
+
+// Client must be authenticated
+func makeUser(client *http.Client, uid string, email string, firstName string, lastName string, country string, affiliation string, password string, st string) (any, error) {
+	// Combine variables
+	cn := firstName + " " + lastName
+	gecos := cn + " (" + country + " " + affiliation + ")"
+	initials := strings.ToUpper(firstName[:1] + lastName[:1])
+
+	// Set connection
+	rpcURL := os.Getenv("IDM_HOST") + "/ipa/session/json"
+	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
+		&jsonrpc.RPCClientOpts{
+			AllowUnknownFields: true, // IdM returns principal
+			CustomHeaders: map[string]string{
+				"Referer":      os.Getenv("IDM_HOST") + "/ipa",
+				"Content-Type": "application/json",
+				"Accept":       "application/json",
+			},
+			HTTPClient: client,
+		})
+
+	// Params
+	params := []any{
+		[]string{uid},
+		map[string]any{
+			"all":          true,
+			"cn":           cn,
+			"displayname":  cn,
+			"gecos":        gecos,
+			"givenname":    firstName,
+			"sn":           lastName,
+			"initials":     initials,
+			"mail":         []string{email},
+			"st":           st,
+			"userpassword": password,
+		},
+	}
+
+	resp, err := rpcClient.Call(context.Background(), "user_add", params...)
+	if err != nil {
+		log.Println("makeUser() call error " + err.Error())
+		return nil, err
+	}
+	if resp.Error != nil {
+		log.Println("makeUser() response error " + resp.Error.Message)
+		return nil, fmt.Errorf("RPC error: %v", resp.Error.Message)
+	}
+
+	return resp.Result, nil
+
+}
+
+func randPIN() string {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	parts := make([]string, 3)
+
+	for i := range parts {
+		var sb strings.Builder
+		for j := 0; j < 3; j++ {
+			idx := r.Intn(len(letters))
+			sb.WriteByte(letters[idx])
+		}
+		parts[i] = sb.String()
+	}
+
+	return strings.Join(parts, "-")
 }

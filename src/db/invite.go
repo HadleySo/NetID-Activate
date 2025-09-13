@@ -29,3 +29,9 @@ func HandleInvite(firstName string, lastName string, email string, state string,
 	return true, nil
 
 }
+
+// Delete invite by email
+func DeleteInviteEmail(email string) {
+	db := DbConnect()
+	db.Where("Email = ?", email).Delete(&models.Invite{})
+}
