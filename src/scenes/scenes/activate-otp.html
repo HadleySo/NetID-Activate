@@ -5,16 +5,25 @@
 {{define "body"}}
 
     <div class="wrapper">
-        <div class="landerCenter">
+        <div class="landerCenter" id="formWrapper">
             <h3>
                 One Time Code
             </h3>
             <p class="pb-1">
-                <small>
-                    A one time code was sent to {{.ActivateEmail}}. 
-                </small>
+                {{if .EmailNotReset}}
+                    <small>
+                        A one time code was previously sent to {{.ActivateEmail}} within the past 5 minutes. 
+                        <br><br>
+                        To request another code, wait five minutes before trying again.
+                    </small>
+                {{else}}
+                    <small>
+                        A one time code was sent to {{.ActivateEmail}}. 
+                    </small>
+                {{end}}
+
             </p>
-            <form action="/otp" id="form14" method="post" onsubmit="">
+            <form action="/otp" id="form14" method="post" onsubmit="submitLoader()">
                 <div class="form-floating mb-3">
                     <input type="text" name="activateEmail" value="{{.ActivateEmail}}" hidden>
                     <input type="number" class="form-control" id="activateOTP" name="activateOTP" placeholder="Code" autofocus="autofocus" autocapitalize="off" autocomplete="off" required="">
@@ -31,8 +40,23 @@
             </small>
 
         </div>
+        <div class="landerCenter" id="loadingWrapper" style="display: none;">
+            <p>
+                <div class="spinner-border" role="status">
+                </div>
+                One moment, retrieving your records...
+            </p>
+
+        </div>
 
     </div>
+
+    <script>
+        function submitLoader() {
+            document.getElementById("formWrapper").style.display = "none";
+            document.getElementById("loadingWrapper").style.display = "block";
+        }
+    </script>
 
     <style>
         .wrapper {

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -27,10 +28,17 @@ type Invite struct {
 	State       string
 	Country     string
 	Affiliation string
+	LoginNames  datatypes.JSON `json:"login_names" gorm:"type:json"`
 }
 
 type OTP struct {
 	Base
 	InviteID string
 	Code     int
+}
+
+type EmailRate struct {
+	Base
+	Email    string
+	LastSend time.Time
 }

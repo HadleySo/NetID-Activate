@@ -56,3 +56,34 @@ func SaveOTP(email string, otpCode *big.Int) error {
 
 	return nil
 }
+
+// Check if email OTP combo valid
+// Returns InviteID, isValid, err
+func EmailOTPValid(activateEmail string, activateOTP string) (string, bool, error) {
+	db := DbConnect()
+
+	// Get invite
+	var otpEntry models.OTP
+	result := db.Where("Code = ?", activateOTP).First(&otpEntry)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return "", false, nil
+	}
+
+	if result.Error != nil {
+		return "", false, result.Error
+	}
+
+	return otpEntry.InviteID, true, nil
+}
+
+// Get invite details
+func InviteDetails(inviteID string) (models.Invite, error) {
+	db := DbConnect()
+
+	// Get invite
+	var userInvite models.Invite
+	result := db.Where("id = ?", inviteID).First(&userInvite)
+
+	return userInvite, result.Error
+}

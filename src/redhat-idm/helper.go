@@ -3,6 +3,7 @@ package idm
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"log"
 	"net/http"
@@ -23,13 +24,17 @@ func newHTTPClient(insecureSkipVerify bool) (*http.Client, error) {
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: insecureSkipVerify,
 	}
-	if os.Getenv("CACERT_PATH") != "" {
-		b, err := os.ReadFile(os.Getenv("CACERT_PATH"))
+	if caPath := os.Getenv("CACERT_PATH"); caPath != "" {
+		b, err := os.ReadFile(caPath)
 		if err != nil {
 			log.Println("newHTTPClient() could not open cert file")
 			return nil, err
 		}
-		tlsConfig.RootCAs.AppendCertsFromPEM(b)
+		pool := x509.NewCertPool()
+		if ok := pool.AppendCertsFromPEM(b); !ok {
+			log.Printf("newHTTPClient: no certs appended from %s", caPath)
+		}
+		tlsConfig.RootCAs = pool
 	}
 
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
@@ -90,6 +95,39 @@ func findUserByEmail(client *http.Client, email string) (any, error) {
 	params := []any{
 		[]string{},
 		map[string]any{"all": true, "sizelimit": 1, "mail": []string{email}},
+	}
+
+	resp, err := rpcClient.Call(context.Background(), "user_find", params...)
+	if err != nil {
+		log.Println("findUserByEmail() call error")
+		return nil, err
+	}
+	if resp.Error != nil {
+		log.Println("findUserByEmail() response error")
+		return nil, fmt.Errorf("RPC error: %v", resp.Error.Message)
+	}
+	return resp.Result, nil
+}
+
+// Find user by login name
+// client must be authenticated
+func findUserByLogin(client *http.Client, loginName string) (any, error) {
+	rpcURL := os.Getenv("IDM_HOST") + "/ipa/session/json"
+	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
+		&jsonrpc.RPCClientOpts{
+			AllowUnknownFields: true, // IdM returns principal
+			CustomHeaders: map[string]string{
+				"Referer":      os.Getenv("IDM_HOST") + "/ipa",
+				"Content-Type": "application/json",
+				"Accept":       "application/json",
+			},
+			HTTPClient: client,
+		})
+
+	// Params: 1st = query filters, 2nd = options
+	params := []any{
+		[]string{},
+		map[string]any{"all": true, "sizelimit": 1, "pkey_only": true, "uid": loginName},
 	}
 
 	resp, err := rpcClient.Call(context.Background(), "user_find", params...)
