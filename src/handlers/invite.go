@@ -67,13 +67,6 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 
 	// Check filled out
 	if firstName == "" || lastName == "" || email == "" || state == "" || country == "" || affiliation == "" || err != nil {
-		http.Redirect(w, r, "/invite/", http.StatusSeeOther)
-		return
-	}
-
-	// Check if email in directory
-	emailExists, err := idm.CheckEmailExists(email)
-	if err != nil {
 		tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
 		tmpl.ExecuteTemplate(w, "base",
 			struct {
@@ -90,6 +83,13 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 				},
 			},
 		)
+		return
+	}
+
+	// Check if email in directory
+	emailExists, err := idm.CheckEmailExists(email)
+	if err != nil {
+		http.Redirect(w, r, "/500?error=error+in+CheckEmailExists", http.StatusSeeOther)
 		return
 	}
 
@@ -126,4 +126,23 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/500?error=mail+HandleSendInvite+error", http.StatusSeeOther)
 		return
 	}
+
+	successMessage := "Success, " + "an email has been sent to " + firstName + "'s " + email + " inbox."
+
+	tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
+	tmpl.ExecuteTemplate(w, "base",
+		struct {
+			Tile    string
+			Message string
+			models.PageBase
+		}{
+			Message: successMessage,
+			Tile:    "Invite Form",
+			PageBase: models.PageBase{
+				PageTitle:  os.Getenv("SITE_NAME"),
+				FaviconURL: os.Getenv("FAVICON_URL"),
+				LogoURL:    os.Getenv("LOGO_URL"),
+			},
+		},
+	)
 }
