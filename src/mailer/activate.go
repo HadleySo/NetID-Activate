@@ -1,4 +1,4 @@
-package otcode
+package mailer
 
 import (
 	"bytes"

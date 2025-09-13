@@ -7,8 +7,8 @@ import (
 	"text/template"
 
 	"github.com/hadleyso/netid-activate/src/db"
+	"github.com/hadleyso/netid-activate/src/mailer"
 	"github.com/hadleyso/netid-activate/src/models"
-	"github.com/hadleyso/netid-activate/src/otcode"
 	"github.com/hadleyso/netid-activate/src/scenes"
 )
 
@@ -34,7 +34,7 @@ func ActivateEmailPost(w http.ResponseWriter, r *http.Request) {
 
 	// Send email
 	if isValid {
-		errorOTP := otcode.HandleSendOTP(activateEmail)
+		errorOTP := mailer.HandleSendOTP(activateEmail)
 		if errorOTP != nil {
 			log.Println("Call to SendOTP() in src/handlers/activate.go error")
 			http.Redirect(w, r, "/500", http.StatusSeeOther)
