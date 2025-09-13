@@ -12,6 +12,7 @@ import (
 	"github.com/hadleyso/netid-activate/src/auth"
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/models"
+	idm "github.com/hadleyso/netid-activate/src/redhat-idm"
 	"github.com/hadleyso/netid-activate/src/scenes"
 )
 
@@ -70,7 +71,46 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if email in directory
-	panic("NOT IMPLEMENTED")
+	emailExists, err := idm.CheckEmailExists(email)
+	if err != nil {
+		tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
+		tmpl.ExecuteTemplate(w, "base",
+			struct {
+				Tile    string
+				Message string
+				models.PageBase
+			}{
+				Message: "Please complete the form fully",
+				Tile:    "Invite Form",
+				PageBase: models.PageBase{
+					PageTitle:  os.Getenv("SITE_NAME"),
+					FaviconURL: os.Getenv("FAVICON_URL"),
+					LogoURL:    os.Getenv("LOGO_URL"),
+				},
+			},
+		)
+		return
+	}
+
+	if emailExists {
+		tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
+		tmpl.ExecuteTemplate(w, "base",
+			struct {
+				Tile    string
+				Message string
+				models.PageBase
+			}{
+				Message: "User already has an account",
+				Tile:    "Invite Form",
+				PageBase: models.PageBase{
+					PageTitle:  os.Getenv("SITE_NAME"),
+					FaviconURL: os.Getenv("FAVICON_URL"),
+					LogoURL:    os.Getenv("LOGO_URL"),
+				},
+			},
+		)
+		return
+	}
 
 	// Add to DB
 	dbSuccess, err := db.HandleInvite(firstName, lastName, email, state, country, affiliation)

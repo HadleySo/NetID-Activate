@@ -1,0 +1,35 @@
+{{define "head"}}{{end}}
+
+
+
+{{define "body"}}
+
+
+    <div class="wrapper">
+        <div class="centerError">
+            <h2>{{.Tile}}</h2>
+
+            <br>
+            <p>
+                {{.Message}}
+            </p>
+        </div>
+    </div>
+
+    <style>
+        .wrapper {
+            display: flex;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh;
+        }
+        .centerError {
+            width: 300px;
+            max-width: 390px;
+            align-self: center;
+        }
+    </style>
+
+{{end}}
