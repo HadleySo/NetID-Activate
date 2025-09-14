@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hadleyso/netid-activate/src/countries"
 	"github.com/hadleyso/netid-activate/src/models"
 	"github.com/ybbus/jsonrpc/v3"
 )
@@ -55,6 +56,13 @@ func makeUser(client *http.Client, uid string, email string, firstName string, l
 	gecos := cn + " (" + country + " " + affiliation + ")"
 	initials := strings.ToUpper(firstName[:1] + lastName[:1])
 
+	// Get value
+	alpha2, errCountry := countries.GetAlpha2FromAlpha3(country)
+	if errCountry == false {
+		log.Println("makeUser() GetAlpha2FromAlpha3 error")
+		return nil, fmt.Errorf("makeUser() error in GetAlpha2FromAlpha3()")
+	}
+
 	// Set connection
 	rpcURL := os.Getenv("IDM_HOST") + "/ipa/session/json"
 	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
@@ -83,6 +91,7 @@ func makeUser(client *http.Client, uid string, email string, firstName string, l
 			"st":           st,
 			"userpassword": password,
 			"manager":      managerUIN,
+			"pager":        []string{alpha2},
 		},
 	}
 

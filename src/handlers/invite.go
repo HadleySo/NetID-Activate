@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/hadleyso/netid-activate/src/auth"
+	"github.com/hadleyso/netid-activate/src/countries"
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/mailer"
 	"github.com/hadleyso/netid-activate/src/models"
@@ -35,9 +36,11 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "base",
 		struct {
 			Affiliation map[string]string
+			Countries   []countries.Country
 			models.PageBase
 		}{
 			Affiliation: affiliationMap,
+			Countries:   countries.Countries,
 			PageBase: models.PageBase{
 				PageTitle:  os.Getenv("SITE_NAME"),
 				FaviconURL: os.Getenv("FAVICON_URL"),
@@ -61,7 +64,7 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	_, err := mail.ParseAddress(email)
 
 	// Check filled out
-	if firstName == "" || lastName == "" || email == "" || state == "" || country == "" || affiliation == "" || err != nil {
+	if firstName == "" || lastName == "" || email == "" || state == "" || country == "" || affiliation == "" || err != nil || countries.Alpha3Exists(country) == false {
 		tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
 		tmpl.ExecuteTemplate(w, "base",
 			struct {
