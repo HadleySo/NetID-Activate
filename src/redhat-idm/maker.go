@@ -43,6 +43,7 @@ func HandleMakeUser(invite models.Invite, loginName string) (string, error) {
 	}
 
 	// Add to groups
+	addUserGroups(client, username, strings.Split(os.Getenv("IDM_ADD_GROUP"), ","))
 
 	return pin, nil
 }
@@ -95,6 +96,46 @@ func makeUser(client *http.Client, uid string, email string, firstName string, l
 	}
 
 	return resp.Result, nil
+
+}
+
+func addUserGroups(client *http.Client, uid string, groups []string) error {
+
+	// Set connection
+	rpcURL := os.Getenv("IDM_HOST") + "/ipa/session/json"
+	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
+		&jsonrpc.RPCClientOpts{
+			AllowUnknownFields: true, // IdM returns principal
+			CustomHeaders: map[string]string{
+				"Referer":      os.Getenv("IDM_HOST") + "/ipa",
+				"Content-Type": "application/json",
+				"Accept":       "application/json",
+			},
+			HTTPClient: client,
+		})
+
+	var err error
+	err = nil
+
+	for _, grp := range groups {
+		// Params
+		params := []any{
+			[]string{grp},
+			map[string]any{
+				"user": []string{uid},
+			},
+		}
+
+		resp, err := rpcClient.Call(context.Background(), "group_add_member", params...)
+		if err != nil {
+			log.Println("addUserGroups() call error " + err.Error())
+		}
+		if resp.Error != nil {
+			log.Println("addUserGroups() response error " + resp.Error.Message)
+		}
+
+	}
+	return err
 
 }
 

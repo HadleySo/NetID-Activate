@@ -210,6 +210,17 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		cookieCheckOk = false
 	}
 
+	// Check login name
+	nameValid, err := db.CheckLoginNames(inviteID, loginName)
+	if err != nil {
+		log.Println("Call to CheckLoginNames() in CreateUser() src/handlers/activate.go error")
+		http.Redirect(w, r, "/500", http.StatusSeeOther)
+		return
+	}
+	if nameValid == false {
+		cookieCheckOk = false
+	}
+
 	// Give error on bad check
 	if cookieCheckOk == false {
 		tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
