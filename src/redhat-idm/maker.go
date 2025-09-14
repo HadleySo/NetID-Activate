@@ -36,7 +36,7 @@ func HandleMakeUser(invite models.Invite, loginName string) (string, error) {
 	pin := randPIN()
 
 	// Create user
-	_, err := makeUser(client, loginName, invite.Email, invite.FirstName, invite.LastName, invite.Country, invite.Affiliation, pin, invite.State)
+	_, err := makeUser(client, loginName, invite.Email, invite.FirstName, invite.LastName, invite.Country, invite.Affiliation, pin, invite.State, invite.Inviter)
 	if err != nil {
 		return "", err
 
@@ -49,7 +49,7 @@ func HandleMakeUser(invite models.Invite, loginName string) (string, error) {
 }
 
 // Client must be authenticated
-func makeUser(client *http.Client, uid string, email string, firstName string, lastName string, country string, affiliation string, password string, st string) (any, error) {
+func makeUser(client *http.Client, uid string, email string, firstName string, lastName string, country string, affiliation string, password string, st string, managerUIN string) (any, error) {
 	// Combine variables
 	cn := firstName + " " + lastName
 	gecos := cn + " (" + country + " " + affiliation + ")"
@@ -82,6 +82,7 @@ func makeUser(client *http.Client, uid string, email string, firstName string, l
 			"mail":         []string{email},
 			"st":           st,
 			"userpassword": password,
+			"manager":      managerUIN,
 		},
 	}
 

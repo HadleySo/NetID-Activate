@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
@@ -75,7 +76,7 @@ func MarshallUserInfo(w http.ResponseWriter, r *http.Request, tokens *oidc.Token
 }
 
 // Returns user data from existing session
-func GetUser(w http.ResponseWriter, r *http.Request) *models.UserInfo {
+func GetUser(w http.ResponseWriter, r *http.Request) (*models.UserInfo, error) {
 	if SessionCookieStore == nil {
 		SessionCookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 	}
@@ -85,10 +86,10 @@ func GetUser(w http.ResponseWriter, r *http.Request) *models.UserInfo {
 	user, err := session_IDCLAIM_IDENTITY.Values["IDP"].(*models.UserInfo)
 	if !err {
 		http.Error(w, "Error getting user from session", http.StatusInternalServerError)
-		return user
+		return user, fmt.Errorf("Error getting user from session")
 	}
 
-	return user
+	return user, nil
 }
 
 // Check if request has valid user session

@@ -29,6 +29,7 @@ type Invite struct {
 	Country     string
 	Affiliation string
 	LoginNames  datatypes.JSON `json:"login_names" gorm:"type:json"`
+	Inviter     string
 }
 
 type OTP struct {

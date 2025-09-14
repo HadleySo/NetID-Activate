@@ -141,3 +141,65 @@ func findUserByLogin(client *http.Client, loginName string) (any, error) {
 	}
 	return resp.Result, nil
 }
+
+func getDN(client *http.Client) (string, error) {
+	// Set connection
+	rpcURL := os.Getenv("IDM_HOST") + "/ipa/session/json"
+	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
+		&jsonrpc.RPCClientOpts{
+			AllowUnknownFields: true, // IdM returns principal
+			CustomHeaders: map[string]string{
+				"Referer":      os.Getenv("IDM_HOST") + "/ipa",
+				"Content-Type": "application/json",
+				"Accept":       "application/json",
+			},
+			HTTPClient: client,
+		})
+
+	// Params
+	params := []any{
+		[]string{},
+		map[string]any{},
+	}
+
+	// Call RPC
+	resp, err := rpcClient.Call(context.Background(), "config_show", params...)
+	if err != nil {
+		log.Println("getDN() call error " + err.Error())
+		return "", err
+	}
+	if resp.Error != nil {
+		log.Println("getDN() response error " + resp.Error.Message)
+		return "", fmt.Errorf("RPC error: %v", resp.Error.Message)
+	}
+
+	// Unmarshall
+	data, ok := resp.Result.(map[string]any)
+	if !ok {
+		fmt.Println("getDN() Error parsing RPC")
+		return "", fmt.Errorf("getDN() Error parsing RPC")
+	}
+
+	// Extract "dn" entry
+	if result, ok := data["result"].(map[string]any); ok {
+		if dn, ok := result["dn"].(string); ok {
+
+			parts := strings.Split(dn, ",")
+
+			// Filter only the dc= components
+			var baseDN []string
+			for _, part := range parts {
+				if strings.HasPrefix(part, "dc=") {
+					baseDN = append(baseDN, part)
+				}
+			}
+			return strings.Join(baseDN, ","), nil
+		} else {
+			log.Println("getDN() DN not found or not a string")
+		}
+	}
+
+	fmt.Println("getDN() result not found or not a map")
+	return "", fmt.Errorf("getDN() result not found or not a map")
+
+}

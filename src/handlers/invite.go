@@ -9,6 +9,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/hadleyso/netid-activate/src/auth"
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/mailer"
 	"github.com/hadleyso/netid-activate/src/models"
@@ -105,7 +106,7 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	// Check if email in directory
 	emailExists, err := idm.CheckEmailExists(email)
 	if err != nil {
-		http.Redirect(w, r, "/500?error=error+in+CheckEmailExists", http.StatusSeeOther)
+		http.Redirect(w, r, "500?error=error+in+CheckEmailExists", http.StatusSeeOther)
 		return
 	}
 
@@ -129,17 +130,25 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get inviter
+	user, errUser := auth.GetUser(w, r)
+	if errUser != nil {
+		http.Redirect(w, r, "500?error=GetUser+error", http.StatusSeeOther)
+		return
+	}
+	inviter := user.PreferredUsername
+
 	// Add to DB
-	dbSuccess, err := db.HandleInvite(firstName, lastName, email, state, country, affiliation)
+	dbSuccess, err := db.HandleInvite(firstName, lastName, email, state, country, affiliation, inviter)
 	if dbSuccess == false {
-		http.Redirect(w, r, "/500?error=DB+HandleInvite+error", http.StatusSeeOther)
+		http.Redirect(w, r, "500?error=DB+HandleInvite+error", http.StatusSeeOther)
 		return
 	}
 
 	// Send email
 	errMail := mailer.HandleSendInvite(email)
 	if errMail != nil {
-		http.Redirect(w, r, "/500?error=mail+HandleSendInvite+error", http.StatusSeeOther)
+		http.Redirect(w, r, "500?error=mail+HandleSendInvite+error", http.StatusSeeOther)
 		return
 	}
 

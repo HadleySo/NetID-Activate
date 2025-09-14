@@ -8,7 +8,7 @@ import (
 )
 
 // Add user to invited table
-func HandleInvite(firstName string, lastName string, email string, state string, country string, affiliation string) (bool, error) {
+func HandleInvite(firstName string, lastName string, email string, state string, country string, affiliation string, inviter string) (bool, error) {
 
 	// Check if email formatted correctly
 	_, err := mail.ParseAddress(email)
@@ -18,7 +18,7 @@ func HandleInvite(firstName string, lastName string, email string, state string,
 
 	db := DbConnect()
 
-	userInvite := models.Invite{FirstName: firstName, LastName: lastName, Email: email, State: state, Country: country, Affiliation: affiliation}
+	userInvite := models.Invite{FirstName: firstName, LastName: lastName, Email: email, State: state, Country: country, Affiliation: affiliation, Inviter: inviter}
 	result := db.Create(&userInvite)
 
 	if result.Error != nil {
