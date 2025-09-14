@@ -25,6 +25,14 @@
 
 </div>
 
+<script>
+    window.addEventListener('beforeunload', (event) => {
+        event.preventDefault();
+        event.returnValue = 'Your temporary password will disappear once you close this tab.';
+    });
+
+</script>
+
 
 
 <style>

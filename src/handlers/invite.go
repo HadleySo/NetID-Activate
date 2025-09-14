@@ -54,6 +54,12 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func InviteSubmit(w http.ResponseWriter, r *http.Request) {
+
+	authenticated := auth.ValidateSession(w, r)
+	if !authenticated {
+		return
+	}
+
 	r.ParseForm()
 	firstName := strings.TrimSpace(r.Form.Get("firstName"))
 	lastName := strings.TrimSpace(r.Form.Get("lastName"))

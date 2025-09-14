@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/gob"
 	"log"
 	"net/http"
 	"os"
@@ -19,6 +20,17 @@ var SessionCookieStore *sessions.CookieStore = nil
 
 func ActivateEmailGet(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+type SuccessData struct {
+	FirstName string
+	LoginName string
+	Password  string
+}
+
+func init() {
+	// Register the struct so gob knows how to encode/decode it.
+	gob.Register(SuccessData{})
 }
 
 // Check email and send OTP code
@@ -290,21 +302,57 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Delete invite
 	db.DeleteInviteEmail(invite.Email)
 
+	// Set flash
+	session_IDCLAIM_SUCCESS, _ := SessionCookieStore.Get(r, "IDCLAIM_SUCCESS")
+	session_IDCLAIM_SUCCESS.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   300,
+		HttpOnly: true,
+	}
+	session_IDCLAIM_SUCCESS.AddFlash(SuccessData{
+		FirstName: invite.FirstName,
+		LoginName: loginName,
+		Password:  passwd,
+	})
+	session_IDCLAIM_SUCCESS.Save(r, w)
+
+	// Redirect to success
+	http.Redirect(w, r, "/success/"+inviteID, http.StatusSeeOther)
+
+}
+
+// Show success page
+func CreateSuccess(w http.ResponseWriter, r *http.Request) {
+	// Get cookie
+	if SessionCookieStore == nil {
+		SessionCookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+	}
+
+	// Get flashes
+	session_IDCLAIM_SUCCESS, _ := SessionCookieStore.Get(r, "IDCLAIM_SUCCESS")
+	var flashData SuccessData
+	flashes := session_IDCLAIM_SUCCESS.Flashes()
+	if len(flashes) > 0 {
+		if data, ok := flashes[0].(SuccessData); ok {
+			flashData = data
+		}
+	}
+
 	// Show success message
 	tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/activate-success.html", "scenes/base.html"))
 	tmpl.ExecuteTemplate(w, "base",
 		struct {
-			FirstName     string
-			Tenant        string
 			LoginName     string
+			FirstName     string
 			Password      string
 			LoginRedirect string
+			Tenant        string
 			models.PageBase
 		}{
-			FirstName:     invite.FirstName,
 			Tenant:        os.Getenv("TENANT_NAME"),
-			LoginName:     loginName,
-			Password:      passwd,
+			LoginName:     flashData.LoginName,
+			FirstName:     flashData.FirstName,
+			Password:      flashData.Password,
 			LoginRedirect: os.Getenv("LOGIN_REDIRECT"),
 			PageBase: models.PageBase{
 				PageTitle:  os.Getenv("SITE_NAME"),
