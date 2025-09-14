@@ -2,6 +2,7 @@ package routes
 
 import (
 	"embed"
+	"encoding/json"
 	"io/fs"
 	"net/http"
 	"text/template"
@@ -9,6 +10,17 @@ import (
 	"github.com/hadleyso/netid-activate/src/models"
 	"github.com/hadleyso/netid-activate/src/scenes"
 )
+
+var (
+	Version   string
+	GitCommit string
+)
+
+type Status struct {
+	Version   string `json:"version"`
+	GitCommit string `json:"hash"`
+	Status    string `json:"status"`
+}
 
 //go:embed static/*
 var staticFiles embed.FS
@@ -29,4 +41,16 @@ func errorRoutes() {
 		},
 	).Methods("GET")
 
+}
+
+func status() {
+	Router.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
+		status := Status{
+			Version:   Version,
+			GitCommit: GitCommit,
+			Status:    "ok",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(status)
+	})
 }

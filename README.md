@@ -91,6 +91,8 @@ The default system permission
 `TENANT_NAME`: Name of IdM directory, shown in emails  
 `AFFILIATION`: JSON list, added to GECOS   
 `LOGIN_REDIRECT`: Shown to users after successful account activation  
+`LINK_SERVICE_PROVIDER`: Shown in email footer  
+`LINK_PRIVACY_POLICY`: Shown in email footer  
 
 #### Email 
 `EMAIL_FROM`: Name and address  

@@ -12,6 +12,7 @@ var Router = mux.NewRouter()
 func Main() {
 	static()
 	errorRoutes()
+	status()
 	authRoutes()
 	landing()
 	activate()
