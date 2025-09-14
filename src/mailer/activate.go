@@ -4,15 +4,16 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"fmt"
 	"log"
 	"math/big"
 	"os"
 	"text/template"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2/types"
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/emailTemplate"
 )
@@ -36,12 +37,11 @@ func HandleSendOTP(email string) error {
 }
 
 func sendOTPemail(email string, otpCode big.Int) error {
-	// 1. Load AWS SDK configuration (uses AWS_REGION and credentials env vars)
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithRegion(os.Getenv("AWS_REGION")),
-	)
+	// 1. Load AWS SDK configuration (uses env vars)
+	ctx := context.Background()
+	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-		log.Println("sendOTPemail() unable to load AWS config")
+		log.Println("HandleSendInvite() unable to load AWS config")
 		return err
 	}
 
@@ -79,7 +79,7 @@ func sendOTPemail(email string, otpCode big.Int) error {
 	// 5. Prepare email parameters
 	from := os.Getenv("EMAIL_FROM")
 	to := email
-	subject := "Test SESv2 Email"
+	subject := os.Getenv("TENANT_NAME") + " ActivationOTP Token"
 
 	input := &sesv2.SendEmailInput{
 		FromEmailAddress: &from,
