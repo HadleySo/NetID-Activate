@@ -5,15 +5,16 @@
 {{define "body"}}
 
 <div class="wrapper">
-    <div class="landerCenter">
+    <div class="landerCenter" id="formWrapper">
         <h3>
             Invite User
         </h3>
         <p class="pb-1">
             <small>
+                Please fill in with information about the user you are inviting.
             </small>
         </p>
-        <form action="/invite/" method="POST" onsubmit="">
+        <form action="/invite/" method="POST" onsubmit="submitLoader()">
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="firstName" class="form-label">First Name</label>
@@ -314,7 +315,23 @@
 
     </div>
 
+    <div class="landerCenter" id="loadingWrapper" style="display: none;">
+        <p>
+            <div class="spinner-border" role="status">
+            </div>
+            &emsp13;One moment, processing...
+        </p>
+
+    </div>
+
 </div>
+
+    <script>
+        function submitLoader() {
+            document.getElementById("formWrapper").style.display = "none";
+            document.getElementById("loadingWrapper").style.display = "block";
+        }
+    </script>
 
 <style>
     .wrapper {

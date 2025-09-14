@@ -15,7 +15,7 @@
         <p class="pb-1">
             Your login name will be <b>visible to other users</b> and you will need to <b>remember it to enter it to log in</b>.
         </p>
-        <form action="/login-name-select" id="form14" method="post" onsubmit="">
+        <form action="/login-name-select" id="form14" method="post" onsubmit="submitLoader()">
             <input type="text" name="inviteID" value="{{.InviteID}}" hidden>
             <div class="form-floating mb-3">
                 {{range .LoginNames }}
@@ -35,13 +35,13 @@
     </div>
 
     <div class="landerCenter" id="loadingWrapper" style="display: none;">
-    <p>
-        <div class="spinner-border" role="status">
-        </div>
-        One moment, retrieving your records...
-    </p>
+        <p>
+            <div class="spinner-border" role="status">
+            </div>
+            &emsp13;One moment, processing...
+        </p>
 
-</div>
+    </div>
 
 </div>
 

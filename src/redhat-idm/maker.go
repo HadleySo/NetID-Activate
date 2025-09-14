@@ -43,7 +43,7 @@ func HandleMakeUser(invite models.Invite, loginName string) (string, error) {
 	}
 
 	// Add to groups
-	addUserGroups(client, username, strings.Split(os.Getenv("IDM_ADD_GROUP"), ","))
+	addUserGroups(client, loginName, strings.Split(os.Getenv("IDM_ADD_GROUP"), ","))
 
 	return pin, nil
 }
@@ -114,28 +114,39 @@ func addUserGroups(client *http.Client, uid string, groups []string) error {
 			HTTPClient: client,
 		})
 
-	var err error
-	err = nil
-
+	var subRequests []any
 	for _, grp := range groups {
-		// Params
-		params := []any{
-			[]string{grp},
-			map[string]any{
-				"user": []string{uid},
+		subRequests = append(subRequests, map[string]any{
+			"method": "group_add_member",
+			"params": []any{
+				[]string{grp}, // group name array
+				map[string]any{
+					"user": []string{uid}, // single user string
+				},
 			},
-		}
-
-		resp, err := rpcClient.Call(context.Background(), "group_add_member", params...)
-		if err != nil {
-			log.Println("addUserGroups() call error " + err.Error())
-		}
-		if resp.Error != nil {
-			log.Println("addUserGroups() response error " + resp.Error.Message)
-		}
-
+		})
 	}
-	return err
+
+	// Batch param wrap
+	batchParams := []any{
+		subRequests, // first param: array of sub-request dicts
+		map[string]any{
+			"version": "2.253", // second param: options
+		},
+	}
+
+	// Call the batch method
+	resp, err := rpcClient.Call(context.Background(), "batch", batchParams...)
+	if err != nil {
+		log.Println("addUserGroups() call error " + err.Error())
+		return err
+	}
+	if resp.Error != nil {
+		log.Println("addUserGroups() response error " + resp.Error.Message)
+		return fmt.Errorf("RPC error: %v", resp.Error.Message)
+	}
+
+	return nil
 
 }
 
