@@ -55,7 +55,7 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	firstName := strings.TrimSpace(r.Form.Get("firstName"))
 	lastName := strings.TrimSpace(r.Form.Get("lastName"))
-	email := strings.TrimSpace(r.Form.Get("email"))
+	email := strings.ToLower(strings.TrimSpace(r.Form.Get("email")))
 	state := strings.TrimSpace(r.Form.Get("state"))
 	country := strings.TrimSpace(r.Form.Get("country"))
 	affiliation := strings.TrimSpace(r.Form.Get("affiliation"))

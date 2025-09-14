@@ -53,8 +53,11 @@ func HandleMakeUser(invite models.Invite, loginName string) (string, error) {
 func makeUser(client *http.Client, uid string, email string, firstName string, lastName string, country string, affiliation string, password string, st string, managerUIN string) (any, error) {
 	// Combine variables
 	cn := firstName + " " + lastName
-	gecos := cn + " (" + country + " " + affiliation + ")"
 	initials := strings.ToUpper(firstName[:1] + lastName[:1])
+	gecos := cn
+	if os.Getenv("IDM_GECOS") == "true" {
+		gecos = cn + " (" + country + " " + affiliation + ")"
+	}
 
 	// Get value
 	alpha2, errCountry := countries.GetAlpha2FromAlpha3(country)
@@ -62,6 +65,14 @@ func makeUser(client *http.Client, uid string, email string, firstName string, l
 		log.Println("makeUser() GetAlpha2FromAlpha3 error")
 		return nil, fmt.Errorf("makeUser() error in GetAlpha2FromAlpha3()")
 	}
+	countryName, errCountry := countries.GetNameFromAlpha3(country)
+	if errCountry == false {
+		log.Println("makeUser() GetAlpha2FromAlpha3 error")
+		return nil, fmt.Errorf("makeUser() error in GetAlpha2FromAlpha3()")
+	}
+
+	// Set st
+	st = st + ", " + countryName
 
 	// Set connection
 	rpcURL := os.Getenv("IDM_HOST") + "/ipa/session/json"

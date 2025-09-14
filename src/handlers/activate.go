@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"text/template"
 
 	"github.com/gorilla/sessions"
@@ -37,7 +38,7 @@ func init() {
 // Show OTP code form
 func ActivateEmailPost(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	activateEmail := r.Form.Get("activateEmail")
+	activateEmail := strings.ToLower(r.Form.Get("activateEmail"))
 
 	// Email has value
 	if activateEmail == "" {

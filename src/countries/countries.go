@@ -24,6 +24,15 @@ func GetAlpha2FromAlpha3(code string) (string, bool) {
 	return "", false
 }
 
+func GetNameFromAlpha3(code string) (string, bool) {
+	for _, c := range Countries {
+		if c.Alpha3 == code {
+			return c.Name, true
+		}
+	}
+	return "", false
+}
+
 var Countries = []Country{
 	{"Afghanistan", "AF", "AFG"},
 	{"Åland Islands", "AX", "ALA"},
