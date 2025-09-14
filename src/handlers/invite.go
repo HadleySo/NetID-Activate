@@ -109,7 +109,7 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	// Check if email in directory
 	emailExists, err := idm.CheckEmailExists(email)
 	if err != nil {
-		http.Redirect(w, r, "500?error=error+in+CheckEmailExists", http.StatusSeeOther)
+		http.Redirect(w, r, "/500?error=error+in+CheckEmailExists", http.StatusSeeOther)
 		return
 	}
 
@@ -136,7 +136,7 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	// Get inviter
 	user, errUser := auth.GetUser(w, r)
 	if errUser != nil {
-		http.Redirect(w, r, "500?error=GetUser+error", http.StatusSeeOther)
+		http.Redirect(w, r, "/500?error=GetUser+error", http.StatusSeeOther)
 		return
 	}
 	inviter := user.PreferredUsername
@@ -144,14 +144,14 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	// Add to DB
 	dbSuccess, err := db.HandleInvite(firstName, lastName, email, state, country, affiliation, inviter)
 	if dbSuccess == false {
-		http.Redirect(w, r, "500?error=DB+HandleInvite+error", http.StatusSeeOther)
+		http.Redirect(w, r, "/500?error=DB+HandleInvite+error", http.StatusSeeOther)
 		return
 	}
 
 	// Send email
 	errMail := mailer.HandleSendInvite(email)
 	if errMail != nil {
-		http.Redirect(w, r, "500?error=mail+HandleSendInvite+error", http.StatusSeeOther)
+		http.Redirect(w, r, "/500?error=mail+HandleSendInvite+error", http.StatusSeeOther)
 		return
 	}
 

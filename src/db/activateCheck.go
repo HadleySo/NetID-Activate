@@ -95,3 +95,14 @@ func InviteDetails(inviteID string) (models.Invite, error) {
 
 	return userInvite, result.Error
 }
+
+// Get invite details
+func InviteDetailsEmail(email string) (models.Invite, error) {
+	db := DbConnect()
+
+	// Get invite
+	var userInvite models.Invite
+	result := db.Where("Email = ?", email).First(&userInvite)
+
+	return userInvite, result.Error
+}

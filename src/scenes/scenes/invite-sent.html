@@ -1,0 +1,107 @@
+{{define "head"}}{{end}}
+
+
+
+{{define "body"}}
+
+<div class="wrapper">
+    <div class="landerCenter" id="formWrapper">
+        <h3>
+            Pending Invites
+        </h3>
+        <p class="pb-1">
+            <small>
+                Invites you have sent that are still pending the user accepting.
+            </small>
+        </p>
+        <div>
+
+            {{if .Invites}}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>State</th>
+                            <th>Country</th>
+                            <th>Affiliation</th>
+                            <th>Created At</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .Invites}}
+                        <tr>
+                            <td>{{.FirstName}}</td>
+                            <td>{{.LastName}}</td>
+                            <td>{{.Email}}</td>
+                            <td>{{.State}}</td>
+                            <td>{{.Country}}</td>
+                            <td>{{.Affiliation}}</td>
+                            <td>{{.CreatedAt.Format "Jan 2, 2006 15:04 MST"}}</td>
+                            <td>
+                                <form action="/invite/sent/delete" method="POST" class="d-inline">
+                                    <input type="hidden" name="email" value="{{.Email}}">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+            {{else}}
+            <div class="alert alert-warning" role="alert">
+                No invites found.
+            </div>
+            {{end}}
+        </div>
+
+    </div>
+
+    <div class="landerCenter" id="loadingWrapper" style="display: none;">
+        <p>
+        <div class="spinner-border" role="status">
+        </div>
+        &emsp13;One moment, processing...
+        </p>
+
+    </div>
+
+</div>
+
+<script>
+    function submitLoader() {
+        document.getElementById("formWrapper").style.display = "none";
+        document.getElementById("loadingWrapper").style.display = "block";
+    }
+</script>
+
+<style>
+    .wrapper {
+        display: flex;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 80vh;
+    }
+
+    .landerCenter {
+        max-width: 1000px;
+        align-self: center;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+</style>
+{{end}}

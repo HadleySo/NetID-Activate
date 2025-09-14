@@ -12,4 +12,6 @@ func invite() {
 	Router.HandleFunc("/invite", handlers.InviteGet).Methods("GET")
 	authedRouter.HandleFunc("/", handlers.InviteLandingPage).Methods("GET")
 	authedRouter.HandleFunc("/", handlers.InviteSubmit).Methods("POST")
+	authedRouter.HandleFunc("/sent", handlers.GetSent).Methods("GET")
+	authedRouter.HandleFunc("/sent/delete", handlers.DeleteInvite).Methods("POST")
 }

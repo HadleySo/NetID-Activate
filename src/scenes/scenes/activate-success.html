@@ -17,8 +17,8 @@
             <li>Your tenant: <b><span class="user-select-all">{{.Tenant}}</span></b></li>
             <li>Your login name: <b><span class="user-select-all">{{.LoginName}}</span></b></li>
         </ul>
-        <p class="pb-1">
-            Your temporary password is <b><span class="user-select-all">{{.Password}}</span></b>, please log in to <a href="{{.LoginRedirect}}">{{.LoginRedirect}}</a> to set your password.
+        <p class="pb-1 user-select-none">
+            Your temporary password is <b><span class="user-select-all">{{.Password}}</span></b>, please log in to <a href="{{.LoginRedirect}}" target="_blank" class="user-select-all">{{.LoginRedirect}}</a> to set your password.
         </p>
 
     </div>

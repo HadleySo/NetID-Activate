@@ -1,10 +1,12 @@
 package db
 
 import (
+	"errors"
 	"log"
 	"net/mail"
 
 	"github.com/hadleyso/netid-activate/src/models"
+	"gorm.io/gorm"
 )
 
 // Add user to invited table
@@ -34,4 +36,25 @@ func HandleInvite(firstName string, lastName string, email string, state string,
 func DeleteInviteEmail(email string) {
 	db := DbConnect()
 	db.Where("Email = ?", email).Delete(&models.Invite{})
+}
+
+func GetUserSent(uid string) ([]models.Invite, error) {
+	db := DbConnect()
+
+	var invites []models.Invite
+	result := db.Where("Inviter = ?", uid).Find(&invites)
+
+	// Has not been emailed
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return invites, nil
+	}
+
+	// DB error
+	if result.Error != nil {
+		log.Println("Error in GetUserSent(): " + result.Error.Error())
+		return invites, result.Error
+	}
+
+	return invites, nil
+
 }
