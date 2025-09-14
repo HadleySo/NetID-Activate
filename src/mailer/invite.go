@@ -36,16 +36,18 @@ func HandleSendInvite(email string) error {
 		PrivacyPolicy   string
 		SiteName        string
 		Tenant          string
+		ServerURL       string
 	}{
 		ServiceProvider: os.Getenv("LINK_SERVICE_PROVIDER"),
 		PrivacyPolicy:   os.Getenv("LINK_PRIVACY_POLICY"),
 		SiteName:        os.Getenv("SITE_NAME"),
 		Tenant:          os.Getenv("TENANT_NAME"),
+		ServerURL:       os.Getenv("SERVER_HOSTNAME") + os.Getenv("OIDC_SERVER_PORT"),
 	}
 	// 4. Execute into buffers
 	var htmlBody, textBody bytes.Buffer
 	if err := htmlTpl.Execute(&htmlBody, vars); err != nil {
-		log.Println("HandleSendInvite() error render HTML template")
+		log.Println("HandleSendInvite() error render HTML template" + err.Error())
 		return err
 	}
 	if err := textTpl.Execute(&textBody, vars); err != nil {
@@ -77,7 +79,8 @@ func HandleSendInvite(email string) error {
 	// 6. Send the email
 	resp, err := client.SendEmail(context.TODO(), input)
 	if err != nil {
-		log.Println("HandleSendInvite() to send email")
+		log.Println("Error HandleSendInvite() to send email" + err.Error())
+		return err
 	}
 
 	log.Printf("Email sent! Message ID: %s\n", *resp.MessageId)

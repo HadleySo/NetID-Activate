@@ -99,7 +99,8 @@ func sendOTPemail(email string, otpCode big.Int) error {
 	// 6. Send the email
 	resp, err := client.SendEmail(context.TODO(), input)
 	if err != nil {
-		log.Println("sendOTPemail() to send email")
+		log.Println("Error sendOTPemail() to send email: " + err.Error())
+		return err
 	}
 
 	log.Printf("Email sent! Message ID: %s\n", *resp.MessageId)
