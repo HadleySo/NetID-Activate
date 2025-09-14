@@ -9,7 +9,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/hadleyso/netid-activate/src/auth"
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/mailer"
 	"github.com/hadleyso/netid-activate/src/models"
@@ -22,11 +21,6 @@ func InviteGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
-	authenticated := auth.ValidateSession(w, r)
-	if !authenticated {
-		return
-	}
-
 	// Get affiliation
 	raw := os.Getenv("AFFILIATION")
 	var affiliationMap map[string]string
@@ -54,12 +48,6 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func InviteSubmit(w http.ResponseWriter, r *http.Request) {
-
-	authenticated := auth.ValidateSession(w, r)
-	if !authenticated {
-		return
-	}
-
 	r.ParseForm()
 	firstName := strings.TrimSpace(r.Form.Get("firstName"))
 	lastName := strings.TrimSpace(r.Form.Get("lastName"))

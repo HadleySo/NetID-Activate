@@ -105,3 +105,22 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 	}
 	return true
 }
+
+// Check if request has valid session
+func MiddleValidateSession(next http.Handler) http.Handler {
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if SessionCookieStore == nil {
+			SessionCookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+		}
+
+		session_HQ_AUTH, _ := SessionCookieStore.Get(r, "IDCLAIM_AUTH")
+
+		if session_HQ_AUTH.Values["AUTHENTICATED"] != true {
+			UnauthorizedLogin(w, r)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
