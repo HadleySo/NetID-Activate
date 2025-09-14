@@ -1,24 +1,39 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8">
     <title>{{.Tenant}} Invite</title>
-  </head>
-  <body>
+</head>
+
+<body>
     <p>Hello,</p>
     <p>
-      You have been invited to create an account in {{.Tenant}}. Please visit <a href="{{.ServerURL}}">{{.ServerURL}}</a> to accept.
+        You have been invited to create an account in {{.Tenant}}. Please visit <a
+            href="{{.ServerURL}}">{{.ServerURL}}</a> to accept.
     </p>
-    <footer>
+    <footer style="padding-top: 15px; font-size: small;">
+        -- <br>
         {{ if .ServiceProvider }}
-            <a href="{{.ServiceProvider}}">Service Provider</a>
+        <a href="{{.ServiceProvider}}">Service Provider</a> &emsp13;&emsp13;
         {{- end}}
         {{ if .PrivacyPolicy }}
-            <a href="{{.PrivacyPolicy}}">Privacy Policy</a>
+        <a href="{{.PrivacyPolicy}}">Privacy Policy</a> &emsp13;&emsp13;
         {{- end}}
         {{ if .SiteName }}
-            {{.SiteName}}
+        {{.SiteName}}
         {{- end}}
     </footer>
-  </body>
+
+    <style>
+        body {
+           font-family: Calibri, sans-serif;
+        }
+        a:hover,
+        a:visited {
+            color: #e57b38;
+        }
+    </style>
+</body>
+
 </html>

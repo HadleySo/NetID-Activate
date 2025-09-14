@@ -31,6 +31,12 @@ func HandleSendInvite(email string) error {
 	// 3. Parse templates
 	htmlTpl := template.Must(template.ParseFS(emailTemplate.TemplateFS, "templates/invite.html"))
 	textTpl := template.Must(template.ParseFS(emailTemplate.TemplateFS, "templates/invite.txt"))
+
+	serverURL := os.Getenv("SERVER_HOSTNAME")
+	if os.Getenv("OIDC_SERVER_PORT") != "" {
+		serverURL = os.Getenv("SERVER_HOSTNAME") + ":" + os.Getenv("OIDC_SERVER_PORT")
+	}
+
 	vars := struct {
 		ServiceProvider string
 		PrivacyPolicy   string
@@ -42,7 +48,7 @@ func HandleSendInvite(email string) error {
 		PrivacyPolicy:   os.Getenv("LINK_PRIVACY_POLICY"),
 		SiteName:        os.Getenv("SITE_NAME"),
 		Tenant:          os.Getenv("TENANT_NAME"),
-		ServerURL:       os.Getenv("SERVER_HOSTNAME") + os.Getenv("OIDC_SERVER_PORT"),
+		ServerURL:       serverURL,
 	}
 	// 4. Execute into buffers
 	var htmlBody, textBody bytes.Buffer
@@ -54,6 +60,7 @@ func HandleSendInvite(email string) error {
 		log.Println("HandleSendInvite() error render text template")
 		return err
 	}
+	fmt.Println(*aws.String(htmlBody.String()))
 
 	// 5. Prepare email parameters
 	from := os.Getenv("EMAIL_FROM")

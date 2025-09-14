@@ -74,6 +74,7 @@ func sendOTPemail(email string, otpCode big.Int) error {
 		log.Println("sendOTPemail() error render text template")
 		return err
 	}
+	fmt.Println(*aws.String(htmlBody.String()))
 
 	// 5. Prepare email parameters
 	from := os.Getenv("EMAIL_FROM")
