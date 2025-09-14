@@ -3,7 +3,7 @@
  [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 **NetID Activate** is a Go web app that provides controlled account invitation 
-account activation via web portal. It acts as a companion to 
+and account activation via web portal. It acts as a companion to 
 Red Hat Identity Management (Red Hat IdM) / FreeIPA.
 
 It enables users to add accounts to a Red Hat IdM domain without needing 
@@ -39,6 +39,7 @@ Here is what the web portal looks like:
     - First initial + last name + number
 - If the invited email is present in IdM, the inviter is notified that 
 the account exists
+- GECOS set to display name or `First Last (<Country Alpha3> <Affiliation>)`
 
 ## Configuration
 
@@ -106,6 +107,7 @@ The default system permission
 `IDM_USERNAME`: IdM Username  
 `IDM_PASSWORD`: IdM Password  
 `IDM_ADD_GROUP`: Comma separated groups to add new users to (no spaces)  
+`IDM_GECOS`: If set to `true` will add country and affiliation to GECOS  
 
 
 ## License  
