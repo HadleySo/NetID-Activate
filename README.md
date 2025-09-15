@@ -64,6 +64,10 @@ permissions are needed:
 #### System: Add User to default group
 The default system permission
 
+#### System: Read UPG Definition
+The system permission
+
+
 ### .env Values
 
 #### Session 

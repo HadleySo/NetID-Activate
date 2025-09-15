@@ -79,7 +79,7 @@ func sendOTPemail(email string, otpCode big.Int) error {
 	// 5. Prepare email parameters
 	from := os.Getenv("EMAIL_FROM")
 	to := email
-	subject := os.Getenv("TENANT_NAME") + " ActivationOTP Token"
+	subject := os.Getenv("TENANT_NAME") + " Activation Code"
 
 	input := &sesv2.SendEmailInput{
 		FromEmailAddress: &from,
