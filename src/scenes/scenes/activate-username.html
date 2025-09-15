@@ -13,7 +13,7 @@
             <small>Please select your login name from the options below. </small>
         </p>
         <p class="pb-1">
-            Your login name will be <b>visible to other users</b> and you will need to <b>remember it to enter it to log in</b>.
+            Your login name will be <b>visible to other users</b> and you will need to <b>remember it to log in</b>.
         </p>
         <form action="/login-name-select" id="form14" method="post" onsubmit="submitLoader()">
             <input type="text" name="inviteID" value="{{.InviteID}}" hidden>
@@ -27,6 +27,14 @@
                     </div>
                 {{end}}
             </div>
+            {{ if .PrivacyPolicy }}
+                <div class="form-floating mb-3">
+                    <hr>
+                    <p class="pb-1">
+                        By clicking submit, I agree to the <a href="{{.PrivacyPolicy}}" target="_blank">Privacy Policy</a>.
+                    </p>
+                </div>
+            {{- end}}
             <div class="form-floating mb-3 pt-3">
                 <button type="submit" class="btn btn-primary w-100" style="font-size: 0.98rem;">Submit</button>
             </div>

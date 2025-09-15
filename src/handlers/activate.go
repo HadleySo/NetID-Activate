@@ -170,11 +170,13 @@ func ActivateOTPPost(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "base",
 		struct {
 			models.PageBase
-			LoginNames []string
-			InviteID   string
+			LoginNames    []string
+			InviteID      string
+			PrivacyPolicy string
 		}{
-			LoginNames: usernameOptions,
-			InviteID:   inviteID,
+			LoginNames:    usernameOptions,
+			InviteID:      inviteID,
+			PrivacyPolicy: os.Getenv("LINK_PRIVACY_POLICY"),
 			PageBase: models.PageBase{
 				PageTitle:  os.Getenv("SITE_NAME"),
 				FaviconURL: os.Getenv("FAVICON_URL"),
