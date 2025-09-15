@@ -84,13 +84,15 @@ func HandleSendInvite(email string) error {
 	}
 
 	// 6. Send the email
-	resp, err := client.SendEmail(context.TODO(), input)
-	if err != nil {
-		log.Println("Error HandleSendInvite() to send email" + err.Error())
-		return err
-	}
+	if os.Getenv("DEV") != "true" {
+		resp, err := client.SendEmail(context.TODO(), input)
+		if err != nil {
+			log.Println("Error HandleSendInvite() to send email" + err.Error())
+			return err
+		}
 
-	log.Printf("Email sent! Message ID: %s\n", *resp.MessageId)
+		log.Printf("Email sent! Message ID: %s\n", *resp.MessageId)
+	}
 
 	return nil
 

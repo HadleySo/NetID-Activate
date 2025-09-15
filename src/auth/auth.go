@@ -49,7 +49,7 @@ func MarshallUserInfo(w http.ResponseWriter, r *http.Request, tokens *oidc.Token
 	session_IDCLAIM_IDENTITY, _ := SessionCookieStore.Get(r, "IDCLAIM_IDENTITY")
 	session_IDCLAIM_IDENTITY.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   86400 * 7,
+		MaxAge:   3600,
 		HttpOnly: true,
 	}
 
@@ -59,7 +59,7 @@ func MarshallUserInfo(w http.ResponseWriter, r *http.Request, tokens *oidc.Token
 	session_IDCLAIM_AUTH, _ := SessionCookieStore.Get(r, "IDCLAIM_AUTH")
 	session_IDCLAIM_AUTH.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   86400 * 7,
+		MaxAge:   3600,
 		HttpOnly: true,
 	}
 	session_IDCLAIM_AUTH.Values["AUTHENTICATED"] = true

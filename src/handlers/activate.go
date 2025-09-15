@@ -8,6 +8,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/hadleyso/netid-activate/src/common"
 	"github.com/hadleyso/netid-activate/src/db"
@@ -152,7 +153,7 @@ func ActivateOTPPost(w http.ResponseWriter, r *http.Request) {
 	session_IDCLAIM_ACTIVATION, _ := SessionCookieStore.Get(r, "IDCLAIM_ACTIVATION")
 	session_IDCLAIM_ACTIVATION.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   86400 * 7,
+		MaxAge:   28800,
 		HttpOnly: true,
 	}
 
@@ -316,7 +317,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		FirstName: invite.FirstName,
 		LoginName: loginName,
 		Password:  passwd,
-	})
+	}, inviteID)
 	session_IDCLAIM_SUCCESS.Save(r, w)
 
 	// Redirect to success
@@ -326,6 +327,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // Show success page
 func CreateSuccess(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	inviteID := vars["inviteID"]
+
 	// Get cookie
 	if SessionCookieStore == nil {
 		SessionCookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
@@ -334,7 +338,7 @@ func CreateSuccess(w http.ResponseWriter, r *http.Request) {
 	// Get flashes
 	session_IDCLAIM_SUCCESS, _ := SessionCookieStore.Get(r, "IDCLAIM_SUCCESS")
 	var flashData SuccessData
-	flashes := session_IDCLAIM_SUCCESS.Flashes()
+	flashes := session_IDCLAIM_SUCCESS.Flashes(inviteID)
 	if len(flashes) > 0 {
 		if data, ok := flashes[0].(SuccessData); ok {
 			flashData = data
