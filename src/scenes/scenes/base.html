@@ -29,7 +29,7 @@
         <div class="row d-flex py-2" id="search_header">
             <nav class="navbar py-0">
                 <div class="container-fluid">
-                    <a class="navbar-brand ps-4 py-0" href="/">
+                    <a class="navbar-brand ps-4-sm ps-0 py-0 overflow-x-hidden" href="/">
                         {{ if gt (len .LogoURL) 1 }}
                             <img src="{{.LogoURL}}" alt="" style="max-height: 50px; width: auto;" class="img-fluid"> <span class="fw-bolder">{{.PageTitle}}</span>
                         {{ else }}
