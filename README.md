@@ -33,12 +33,13 @@ Here is what the web portal looks like:
 
 - OpenID Connect authentication for users inviting new users
 - Email based one time code for invited users
-- Username selection from several options, options are removed if already claimed
+- Username selection from several options, options are removed if already used in IdM
     - First name + last name
     - First name three letters + last name
     - First name two letters + last name
     - First name + last name two letters
     - First initial + last name + number
+- Multiple default groups for invited users  
 - If the invited email is present in IdM, the inviter is notified that 
 the account exists
 - GECOS set to display name or `First Last (<Country Alpha3> <Affiliation>)`
