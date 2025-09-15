@@ -4,7 +4,9 @@
 
 **NetID Activate** is a Go web app that provides controlled account invitation 
 and account activation via web portal. It acts as a companion to 
-Red Hat Identity Management (Red Hat IdM) / FreeIPA.
+[Red Hat Identity Management](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/planning_identity_management/index) (Red Hat IdM) / FreeIPA.
+
+<img src="docs/img/redHat_IdentityManagement_mb.png" width="250" style="padding-bottom:10px">
 
 It enables users to add accounts to a Red Hat IdM domain without needing 
 [view ACI](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/8/html/configuring_and_managing_identity_management/access-control-in-idm_configuring-and-managing-idm#access-control-instructions-in-idm_access-control-in-idm), trusting the IdM integrated root certificate on browsers, or installing IdM 
