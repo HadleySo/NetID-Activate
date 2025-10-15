@@ -56,11 +56,7 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 		}{
 			Affiliation: affiliationMap,
 			Countries:   countries.Countries,
-			PageBase: models.PageBase{
-				PageTitle:  viper.GetString("SITE_NAME"),
-				FaviconURL: viper.GetString("FAVICON_URL"),
-				LogoURL:    viper.GetString("LOGO_URL"),
-			},
+			PageBase:    models.NewPageBase(""),
 		},
 	)
 
@@ -87,13 +83,9 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 				Message string
 				models.PageBase
 			}{
-				Message: "Please complete the form fully",
-				Tile:    "Invite Form",
-				PageBase: models.PageBase{
-					PageTitle:  viper.GetString("SITE_NAME"),
-					FaviconURL: viper.GetString("FAVICON_URL"),
-					LogoURL:    viper.GetString("LOGO_URL"),
-				},
+				Message:  "Please complete the form fully",
+				Tile:     "Invite Form",
+				PageBase: models.NewPageBase(""),
 			},
 		)
 		return
@@ -109,13 +101,9 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 				Message string
 				models.PageBase
 			}{
-				Message: "User already invited",
-				Tile:    "Invite Form",
-				PageBase: models.PageBase{
-					PageTitle:  viper.GetString("SITE_NAME"),
-					FaviconURL: viper.GetString("FAVICON_URL"),
-					LogoURL:    viper.GetString("LOGO_URL"),
-				},
+				Message:  "User already invited",
+				Tile:     "Invite Form",
+				PageBase: models.NewPageBase(""),
 			},
 		)
 		return
@@ -136,13 +124,9 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 				Message string
 				models.PageBase
 			}{
-				Message: "User already has an account",
-				Tile:    "Invite Form",
-				PageBase: models.PageBase{
-					PageTitle:  viper.GetString("SITE_NAME"),
-					FaviconURL: viper.GetString("FAVICON_URL"),
-					LogoURL:    viper.GetString("LOGO_URL"),
-				},
+				Message:  "User already has an account",
+				Tile:     "Invite Form",
+				PageBase: models.NewPageBase(""),
 			},
 		)
 		return
@@ -179,13 +163,9 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 			Message string
 			models.PageBase
 		}{
-			Message: successMessage,
-			Tile:    "Invite Form",
-			PageBase: models.PageBase{
-				PageTitle:  viper.GetString("SITE_NAME"),
-				FaviconURL: viper.GetString("FAVICON_URL"),
-				LogoURL:    viper.GetString("LOGO_URL"),
-			},
+			Message:  successMessage,
+			Tile:     "Invite Form",
+			PageBase: models.NewPageBase(""),
 		},
 	)
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/models"
 	"github.com/hadleyso/netid-activate/src/scenes"
-	"github.com/spf13/viper"
 )
 
 func GetSent(w http.ResponseWriter, r *http.Request) {
@@ -33,12 +32,8 @@ func GetSent(w http.ResponseWriter, r *http.Request) {
 			Invites []models.Invite
 			models.PageBase
 		}{
-			Invites: invites,
-			PageBase: models.PageBase{
-				PageTitle:  viper.GetString("SITE_NAME"),
-				FaviconURL: viper.GetString("FAVICON_URL"),
-				LogoURL:    viper.GetString("LOGO_URL"),
-			},
+			Invites:  invites,
+			PageBase: models.NewPageBase(""),
 		},
 	)
 }

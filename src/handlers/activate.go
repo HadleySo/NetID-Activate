@@ -83,11 +83,7 @@ func ActivateEmailPost(w http.ResponseWriter, r *http.Request) {
 		}{
 			ActivateEmail: activateEmail,
 			EmailNotReset: emailNotResent,
-			PageBase: models.PageBase{
-				PageTitle:  viper.GetString("SITE_NAME"),
-				FaviconURL: viper.GetString("FAVICON_URL"),
-				LogoURL:    viper.GetString("LOGO_URL"),
-			},
+			PageBase:      models.NewPageBase(""),
 		},
 	)
 
@@ -117,13 +113,9 @@ func ActivateOTPPost(w http.ResponseWriter, r *http.Request) {
 				Message string
 				models.PageBase
 			}{
-				Message: "Your OTP code has expired or is invalid",
-				Tile:    "One Time Code ",
-				PageBase: models.PageBase{
-					PageTitle:  viper.GetString("SITE_NAME"),
-					FaviconURL: viper.GetString("FAVICON_URL"),
-					LogoURL:    viper.GetString("LOGO_URL"),
-				},
+				Message:  "Your OTP code has expired or is invalid",
+				Tile:     "One Time Code ",
+				PageBase: models.NewPageBase(""),
 			},
 		)
 		return
@@ -178,11 +170,7 @@ func ActivateOTPPost(w http.ResponseWriter, r *http.Request) {
 			LoginNames:    usernameOptions,
 			InviteID:      inviteID,
 			PrivacyPolicy: viper.GetString("LINK_PRIVACY_POLICY"),
-			PageBase: models.PageBase{
-				PageTitle:  viper.GetString("SITE_NAME"),
-				FaviconURL: viper.GetString("FAVICON_URL"),
-				LogoURL:    viper.GetString("LOGO_URL"),
-			},
+			PageBase:      models.NewPageBase(""),
 		},
 	)
 
@@ -246,13 +234,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 				Message string
 				models.PageBase
 			}{
-				Message: "There has been an error processing your request, either a security flag or other condition.",
-				Tile:    "Activation",
-				PageBase: models.PageBase{
-					PageTitle:  viper.GetString("SITE_NAME"),
-					FaviconURL: viper.GetString("FAVICON_URL"),
-					LogoURL:    viper.GetString("LOGO_URL"),
-				},
+				Message:  "There has been an error processing your request, either a security flag or other condition.",
+				Tile:     "Activation",
+				PageBase: models.NewPageBase(""),
 			},
 		)
 		return
@@ -284,13 +268,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 				Message string
 				models.PageBase
 			}{
-				Message: "Your account already exists, please login at: " + viper.GetString("LOGIN_REDIRECT"),
-				Tile:    "Activation",
-				PageBase: models.PageBase{
-					PageTitle:  viper.GetString("SITE_NAME"),
-					FaviconURL: viper.GetString("FAVICON_URL"),
-					LogoURL:    viper.GetString("LOGO_URL"),
-				},
+				Message:  "Your account already exists, please login at: " + viper.GetString("LOGIN_REDIRECT"),
+				Tile:     "Activation",
+				PageBase: models.NewPageBase(""),
 			},
 		)
 		return
@@ -361,11 +341,7 @@ func CreateSuccess(w http.ResponseWriter, r *http.Request) {
 			FirstName:     flashData.FirstName,
 			Password:      flashData.Password,
 			LoginRedirect: viper.GetString("LOGIN_REDIRECT"),
-			PageBase: models.PageBase{
-				PageTitle:  viper.GetString("SITE_NAME"),
-				FaviconURL: viper.GetString("FAVICON_URL"),
-				LogoURL:    viper.GetString("LOGO_URL"),
-			},
+			PageBase:      models.NewPageBase(""),
 		},
 	)
 
