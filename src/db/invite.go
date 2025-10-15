@@ -1,6 +1,7 @@
 package db
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 	"net/mail"
@@ -10,7 +11,7 @@ import (
 )
 
 // Add user to invited table
-func HandleInvite(firstName string, lastName string, email string, state string, country string, affiliation string, inviter string) (bool, error) {
+func HandleInvite(firstName string, lastName string, email string, state string, country string, affiliation string, inviter string, optionalGroups []string) (bool, error) {
 
 	// Check if email formatted correctly
 	_, err := mail.ParseAddress(email)
@@ -20,7 +21,11 @@ func HandleInvite(firstName string, lastName string, email string, state string,
 
 	db := DbConnect()
 
-	userInvite := models.Invite{FirstName: firstName, LastName: lastName, Email: email, State: state, Country: country, Affiliation: affiliation, Inviter: inviter}
+	optionalGroupsJson, err := json.Marshal(optionalGroups)
+	if err != nil {
+		return false, errors.New("Error marshalling OptionalGroups")
+	}
+	userInvite := models.Invite{FirstName: firstName, LastName: lastName, Email: email, State: state, Country: country, Affiliation: affiliation, Inviter: inviter, OptionalGroups: optionalGroupsJson}
 	result := db.Create(&userInvite)
 
 	if result.Error != nil {

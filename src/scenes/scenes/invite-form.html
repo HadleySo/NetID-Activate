@@ -47,6 +47,20 @@
                 </select>
             </div>
 
+            {{ if gt (len .OptionalGroup) 0 }}
+                <div class="mb-3">
+                    <label for="groupOptional" class="form-label">Optional Groups</label>
+                    {{range $key, $value := .OptionalGroup}}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="{{$key}}" id="groupOptional-{{$key}}" value="yes">
+                            <label class="form-check-label" for="groupOptional-{{$key}}">
+                                {{$value}}
+                            </label>
+                        </div>  
+                    {{end}}
+                </div>
+            {{end}}
+
             <div class="mb-3">
                 <label for="affiliation" class="form-label">Affiliation</label>
                 <select class="form-select" id="affiliation" name="affiliation" required>

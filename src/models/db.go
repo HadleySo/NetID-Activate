@@ -22,14 +22,15 @@ func (m *Base) BeforeCreate(tx *gorm.DB) (err error) {
 
 type Invite struct {
 	Base
-	FirstName   string
-	LastName    string
-	Email       string
-	State       string
-	Country     string
-	Affiliation string
-	LoginNames  datatypes.JSON `json:"login_names" gorm:"type:json"`
-	Inviter     string
+	FirstName      string
+	LastName       string
+	Email          string
+	State          string
+	Country        string
+	Affiliation    string
+	LoginNames     datatypes.JSON `json:"login_names" gorm:"type:json"`
+	Inviter        string
+	OptionalGroups datatypes.JSON `json:"optional_groups" gorm:"type:json"`
 }
 
 type OTP struct {

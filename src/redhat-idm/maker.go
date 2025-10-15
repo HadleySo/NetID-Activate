@@ -2,6 +2,7 @@ package idm
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -44,8 +45,13 @@ func HandleMakeUser(invite models.Invite, loginName string) (string, error) {
 	}
 
 	// Add to groups
-	addUserGroups(client, loginName, strings.Split(viper.GetString("IDM_ADD_GROUP"), ","))
+	var groups []string
+	if err := json.Unmarshal(invite.OptionalGroups, &groups); err != nil {
+		return "", err
+	}
+	groups = append(groups, strings.Split(viper.GetString("IDM_ADD_GROUP"), ",")...)
 
+	addUserGroups(client, loginName, groups) // TODO: handle errors
 	return pin, nil
 }
 
