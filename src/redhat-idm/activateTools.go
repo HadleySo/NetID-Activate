@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
+
+	"github.com/spf13/viper"
 )
 
 // Checks if login names exists in IdM
@@ -20,8 +21,8 @@ func CheckUsernamesExists(loginNames []string) ([]string, error) {
 		return okUsername, errClient
 	}
 
-	username := os.Getenv("IDM_USERNAME")
-	password := os.Getenv("IDM_PASSWORD")
+	username := viper.GetString("IDM_USERNAME")
+	password := viper.GetString("IDM_PASSWORD")
 	errLogin := login(client, username, password)
 	if errLogin != nil {
 		log.Println("CheckUsernamesExists() unable to login() with HTTPClient " + errLogin.Error())

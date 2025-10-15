@@ -6,12 +6,12 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/hadleyso/netid-activate/src/countries"
 	"github.com/hadleyso/netid-activate/src/models"
+	"github.com/spf13/viper"
 	"github.com/ybbus/jsonrpc/v3"
 )
 
@@ -25,8 +25,8 @@ func HandleMakeUser(invite models.Invite, loginName string) (string, error) {
 	}
 
 	// Auth
-	username := os.Getenv("IDM_USERNAME")
-	password := os.Getenv("IDM_PASSWORD")
+	username := viper.GetString("IDM_USERNAME")
+	password := viper.GetString("IDM_PASSWORD")
 	errLogin := login(client, username, password)
 	if errLogin != nil {
 		log.Println("MakeUser() unable to login() with HTTPClient " + errLogin.Error())
@@ -44,7 +44,7 @@ func HandleMakeUser(invite models.Invite, loginName string) (string, error) {
 	}
 
 	// Add to groups
-	addUserGroups(client, loginName, strings.Split(os.Getenv("IDM_ADD_GROUP"), ","))
+	addUserGroups(client, loginName, strings.Split(viper.GetString("IDM_ADD_GROUP"), ","))
 
 	return pin, nil
 }
@@ -55,7 +55,7 @@ func makeUser(client *http.Client, uid string, email string, firstName string, l
 	cn := firstName + " " + lastName
 	initials := strings.ToUpper(firstName[:1] + lastName[:1])
 	gecos := cn
-	if os.Getenv("IDM_GECOS") == "true" {
+	if viper.GetString("IDM_GECOS") == "true" {
 		gecos = cn + " (" + country + " " + affiliation + ")"
 	}
 
@@ -75,12 +75,12 @@ func makeUser(client *http.Client, uid string, email string, firstName string, l
 	st = st + ", " + countryName
 
 	// Set connection
-	rpcURL := os.Getenv("IDM_HOST") + "/ipa/session/json"
+	rpcURL := viper.GetString("IDM_HOST") + "/ipa/session/json"
 	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
 		&jsonrpc.RPCClientOpts{
 			AllowUnknownFields: true, // IdM returns principal
 			CustomHeaders: map[string]string{
-				"Referer":      os.Getenv("IDM_HOST") + "/ipa",
+				"Referer":      viper.GetString("IDM_HOST") + "/ipa",
 				"Content-Type": "application/json",
 				"Accept":       "application/json",
 			},
@@ -123,12 +123,12 @@ func makeUser(client *http.Client, uid string, email string, firstName string, l
 func addUserGroups(client *http.Client, uid string, groups []string) error {
 
 	// Set connection
-	rpcURL := os.Getenv("IDM_HOST") + "/ipa/session/json"
+	rpcURL := viper.GetString("IDM_HOST") + "/ipa/session/json"
 	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
 		&jsonrpc.RPCClientOpts{
 			AllowUnknownFields: true, // IdM returns principal
 			CustomHeaders: map[string]string{
-				"Referer":      os.Getenv("IDM_HOST") + "/ipa",
+				"Referer":      viper.GetString("IDM_HOST") + "/ipa",
 				"Content-Type": "application/json",
 				"Accept":       "application/json",
 			},

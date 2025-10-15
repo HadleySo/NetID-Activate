@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"text/template"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -13,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sesv2"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2/types"
 	"github.com/hadleyso/netid-activate/src/emailTemplate"
+	"github.com/spf13/viper"
 )
 
 func HandleSendInvite(email string) error {
@@ -32,9 +32,9 @@ func HandleSendInvite(email string) error {
 	htmlTpl := template.Must(template.ParseFS(emailTemplate.TemplateFS, "templates/invite.html"))
 	textTpl := template.Must(template.ParseFS(emailTemplate.TemplateFS, "templates/invite.txt"))
 
-	serverURL := os.Getenv("SERVER_HOSTNAME")
-	if os.Getenv("OIDC_SERVER_PORT") != "" {
-		serverURL = os.Getenv("SERVER_HOSTNAME") + ":" + os.Getenv("OIDC_SERVER_PORT")
+	serverURL := viper.GetString("SERVER_HOSTNAME")
+	if viper.GetString("OIDC_SERVER_PORT") != "" {
+		serverURL = viper.GetString("SERVER_HOSTNAME") + ":" + viper.GetString("OIDC_SERVER_PORT")
 	}
 
 	vars := struct {
@@ -44,10 +44,10 @@ func HandleSendInvite(email string) error {
 		Tenant          string
 		ServerURL       string
 	}{
-		ServiceProvider: os.Getenv("LINK_SERVICE_PROVIDER"),
-		PrivacyPolicy:   os.Getenv("LINK_PRIVACY_POLICY"),
-		SiteName:        os.Getenv("SITE_NAME"),
-		Tenant:          os.Getenv("TENANT_NAME"),
+		ServiceProvider: viper.GetString("LINK_SERVICE_PROVIDER"),
+		PrivacyPolicy:   viper.GetString("LINK_PRIVACY_POLICY"),
+		SiteName:        viper.GetString("SITE_NAME"),
+		Tenant:          viper.GetString("TENANT_NAME"),
 		ServerURL:       serverURL,
 	}
 	// 4. Execute into buffers
@@ -63,9 +63,9 @@ func HandleSendInvite(email string) error {
 	fmt.Println(*aws.String(htmlBody.String()))
 
 	// 5. Prepare email parameters
-	from := os.Getenv("EMAIL_FROM")
+	from := viper.GetString("EMAIL_FROM")
 	to := email
-	subject := os.Getenv("TENANT_NAME") + " Invite"
+	subject := viper.GetString("TENANT_NAME") + " Invite"
 
 	input := &sesv2.SendEmailInput{
 		FromEmailAddress: &from,
@@ -84,7 +84,7 @@ func HandleSendInvite(email string) error {
 	}
 
 	// 6. Send the email
-	if os.Getenv("DEV") != "true" {
+	if viper.GetString("DEV") != "true" {
 		resp, err := client.SendEmail(context.TODO(), input)
 		if err != nil {
 			log.Println("Error HandleSendInvite() to send email" + err.Error())

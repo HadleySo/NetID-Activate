@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/sessions"
+	"github.com/spf13/viper"
 	"github.com/zitadel/oidc/v3/pkg/client/rp"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 
@@ -31,7 +31,7 @@ func UnauthorizedLogin(w http.ResponseWriter, r *http.Request) {
 // Sets cookie with user data after pulling from OIDC
 func MarshallUserInfo(w http.ResponseWriter, r *http.Request, tokens *oidc.Tokens[*oidc.IDTokenClaims], state string, rp rp.RelyingParty, info *oidc.UserInfo) {
 	if SessionCookieStore == nil {
-		SessionCookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+		SessionCookieStore = sessions.NewCookieStore([]byte(viper.GetString("SESSION_KEY")))
 	}
 	data, err := json.Marshal(info)
 	if err != nil {
@@ -78,7 +78,7 @@ func MarshallUserInfo(w http.ResponseWriter, r *http.Request, tokens *oidc.Token
 // Returns user data from existing session
 func GetUser(w http.ResponseWriter, r *http.Request) (*models.UserInfo, error) {
 	if SessionCookieStore == nil {
-		SessionCookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+		SessionCookieStore = sessions.NewCookieStore([]byte(viper.GetString("SESSION_KEY")))
 	}
 
 	// User data
@@ -95,7 +95,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) (*models.UserInfo, error) {
 // Check if request has valid user session
 func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 	if SessionCookieStore == nil {
-		SessionCookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+		SessionCookieStore = sessions.NewCookieStore([]byte(viper.GetString("SESSION_KEY")))
 	}
 
 	session_IDCLAIM_AUTH, _ := SessionCookieStore.Get(r, "IDCLAIM_AUTH")
@@ -112,7 +112,7 @@ func MiddleValidateSession(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if SessionCookieStore == nil {
-			SessionCookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+			SessionCookieStore = sessions.NewCookieStore([]byte(viper.GetString("SESSION_KEY")))
 		}
 
 		session_HQ_AUTH, _ := SessionCookieStore.Get(r, "IDCLAIM_AUTH")

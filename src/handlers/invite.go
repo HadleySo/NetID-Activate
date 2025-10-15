@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"net/mail"
-	"os"
 	"strings"
 	"text/template"
 
@@ -16,6 +14,7 @@ import (
 	"github.com/hadleyso/netid-activate/src/models"
 	idm "github.com/hadleyso/netid-activate/src/redhat-idm"
 	"github.com/hadleyso/netid-activate/src/scenes"
+	"github.com/spf13/viper"
 )
 
 func InviteGet(w http.ResponseWriter, r *http.Request) {
@@ -24,11 +23,27 @@ func InviteGet(w http.ResponseWriter, r *http.Request) {
 
 func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 	// Get affiliation
-	raw := os.Getenv("AFFILIATION")
-	var affiliationMap map[string]string
-	if err := json.Unmarshal([]byte(raw), &affiliationMap); err != nil {
-		log.Println("InviteLandingPage() unable to parse AFFILIATION env")
+	affiliationsRaw := viper.Get("AFFILIATION")
+	affiliationList, ok := affiliationsRaw.([]interface{})
+	if !ok {
+		log.Printf("InviteLandingPage() Expected affiliation to be a slice, but got %T", affiliationsRaw)
 		http.Redirect(w, r, "/500", http.StatusSeeOther)
+	}
+
+	affiliationMap := make(map[string]string)
+	for _, item := range affiliationList {
+		// Type assert each item to a map
+		affiliation, ok := item.(map[string]interface{})
+		if ok {
+			// Convert key-value pairs to string
+			for key, value := range affiliation {
+				// Convert to string
+				if strValue, ok := value.(string); ok {
+					affiliationMap[key] = strValue
+				}
+			}
+		}
+
 	}
 
 	// Render template
@@ -42,9 +57,9 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 			Affiliation: affiliationMap,
 			Countries:   countries.Countries,
 			PageBase: models.PageBase{
-				PageTitle:  os.Getenv("SITE_NAME"),
-				FaviconURL: os.Getenv("FAVICON_URL"),
-				LogoURL:    os.Getenv("LOGO_URL"),
+				PageTitle:  viper.GetString("SITE_NAME"),
+				FaviconURL: viper.GetString("FAVICON_URL"),
+				LogoURL:    viper.GetString("LOGO_URL"),
 			},
 		},
 	)
@@ -75,9 +90,9 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 				Message: "Please complete the form fully",
 				Tile:    "Invite Form",
 				PageBase: models.PageBase{
-					PageTitle:  os.Getenv("SITE_NAME"),
-					FaviconURL: os.Getenv("FAVICON_URL"),
-					LogoURL:    os.Getenv("LOGO_URL"),
+					PageTitle:  viper.GetString("SITE_NAME"),
+					FaviconURL: viper.GetString("FAVICON_URL"),
+					LogoURL:    viper.GetString("LOGO_URL"),
 				},
 			},
 		)
@@ -97,9 +112,9 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 				Message: "User already invited",
 				Tile:    "Invite Form",
 				PageBase: models.PageBase{
-					PageTitle:  os.Getenv("SITE_NAME"),
-					FaviconURL: os.Getenv("FAVICON_URL"),
-					LogoURL:    os.Getenv("LOGO_URL"),
+					PageTitle:  viper.GetString("SITE_NAME"),
+					FaviconURL: viper.GetString("FAVICON_URL"),
+					LogoURL:    viper.GetString("LOGO_URL"),
 				},
 			},
 		)
@@ -124,9 +139,9 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 				Message: "User already has an account",
 				Tile:    "Invite Form",
 				PageBase: models.PageBase{
-					PageTitle:  os.Getenv("SITE_NAME"),
-					FaviconURL: os.Getenv("FAVICON_URL"),
-					LogoURL:    os.Getenv("LOGO_URL"),
+					PageTitle:  viper.GetString("SITE_NAME"),
+					FaviconURL: viper.GetString("FAVICON_URL"),
+					LogoURL:    viper.GetString("LOGO_URL"),
 				},
 			},
 		)
@@ -167,9 +182,9 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 			Message: successMessage,
 			Tile:    "Invite Form",
 			PageBase: models.PageBase{
-				PageTitle:  os.Getenv("SITE_NAME"),
-				FaviconURL: os.Getenv("FAVICON_URL"),
-				LogoURL:    os.Getenv("LOGO_URL"),
+				PageTitle:  viper.GetString("SITE_NAME"),
+				FaviconURL: viper.GetString("FAVICON_URL"),
+				LogoURL:    viper.GetString("LOGO_URL"),
 			},
 		},
 	)

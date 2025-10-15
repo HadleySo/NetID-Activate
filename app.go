@@ -10,17 +10,28 @@ import (
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/models"
 	"github.com/hadleyso/netid-activate/src/routes"
-	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 )
 
 func main() {
 
-	// Load env
-	err := godotenv.Load()
+	// LOAD CONFIG
+	viper.SetConfigName("netid")
+
+	// Config search paths to find the file
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("./data")
+
+	err := viper.ReadInConfig()
+
+	// Viper errors
 	if err != nil {
-		log.Fatal("Error loading .env file")
-		os.Exit(1)
+		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
+
+	// Viper prefix for environment variables
+	viper.SetEnvPrefix("NETID")
+	viper.AutomaticEnv()
 
 	// Register struct
 	gob.Register(&models.UserInfo{})
@@ -35,7 +46,7 @@ func main() {
 	routes.Main()
 
 	// Listen
-	port := os.Getenv("SERVER_PORT")
+	port := viper.GetString("SERVER_PORT")
 	log.Println("Listening to localhost:" + port)
 	http.ListenAndServe(fmt.Sprintf("localhost:%v", port), routes.Router)
 }
