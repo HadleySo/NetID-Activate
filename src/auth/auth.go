@@ -47,6 +47,9 @@ func MarshallUserInfo(w http.ResponseWriter, r *http.Request, tokens *oidc.Token
 	}
 
 	var session_age = int(tokens.ExpiresIn)
+	if viper.IsSet("SESSION_AGE") {
+		session_age = viper.GetInt("SESSION_AGE")
+	}
 
 	session_IDCLAIM_IDENTITY, _ := SessionCookieStore.Get(r, "IDCLAIM_IDENTITY")
 	session_IDCLAIM_IDENTITY.Options = &sessions.Options{

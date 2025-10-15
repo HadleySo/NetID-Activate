@@ -77,6 +77,7 @@ Make a copy of [NETID.example.yaml](NETID.example.yaml) to `./NETID.yaml` or `./
 
 #### Session 
 `SESSION_KEY`: Set the 32 byte cookie secret key. eg `openssl rand -base64 32 | head -c 32; echo`  
+`SESSION_AGE`: Optional, defaults to access token lifespan. Set the maximum age of a session before the user must reauthenticate  
 
 #### Hostname and Port
 `SERVER_PORT`: What port on localhost Go should listen to  
