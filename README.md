@@ -71,10 +71,12 @@ The default system permission
 The system permission
 
 
-### .env Values
+### Configuration File
+
+Make a copy of [NETID.example.yaml](NETID.example.yaml) to `./NETID.yaml` or `./data/NETID.yaml`
 
 #### Session 
-`SESSION_KEY`: Set the 32 byte cookie secret key. eg `openssl rand -base64 32`  
+`SESSION_KEY`: Set the 32 byte cookie secret key. eg `openssl rand -base64 32 | head -c 32; echo`  
 
 #### Hostname and Port
 `SERVER_PORT`: What port on localhost Go should listen to  

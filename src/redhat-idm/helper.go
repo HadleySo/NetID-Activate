@@ -12,6 +12,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/spf13/viper"
 	"github.com/ybbus/jsonrpc/v3"
 )
 
@@ -24,7 +25,7 @@ func newHTTPClient(insecureSkipVerify bool) (*http.Client, error) {
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: insecureSkipVerify,
 	}
-	if caPath := os.Getenv("CACERT_PATH"); caPath != "" {
+	if caPath := viper.GetString("CACERT_PATH"); caPath != "" {
 		b, err := os.ReadFile(caPath)
 		if err != nil {
 			log.Println("newHTTPClient() could not open cert file")
@@ -45,7 +46,7 @@ func newHTTPClient(insecureSkipVerify bool) (*http.Client, error) {
 }
 
 func login(client *http.Client, user string, password string) error {
-	IDM_HOST := os.Getenv("IDM_HOST")
+	IDM_HOST := viper.GetString("IDM_HOST")
 	loginURL := IDM_HOST + "/ipa/session/login_password"
 	form := url.Values{
 		"user":     {user},
@@ -79,12 +80,12 @@ func login(client *http.Client, user string, password string) error {
 // Find user by email
 // client must be authenticated
 func findUserByEmail(client *http.Client, email string) (any, error) {
-	rpcURL := os.Getenv("IDM_HOST") + "/ipa/session/json"
+	rpcURL := viper.GetString("IDM_HOST") + "/ipa/session/json"
 	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
 		&jsonrpc.RPCClientOpts{
 			AllowUnknownFields: true, // IdM returns principal
 			CustomHeaders: map[string]string{
-				"Referer":      os.Getenv("IDM_HOST") + "/ipa",
+				"Referer":      viper.GetString("IDM_HOST") + "/ipa",
 				"Content-Type": "application/json",
 				"Accept":       "application/json",
 			},
@@ -112,12 +113,12 @@ func findUserByEmail(client *http.Client, email string) (any, error) {
 // Find user by login name
 // client must be authenticated
 func findUserByLogin(client *http.Client, loginName string) (any, error) {
-	rpcURL := os.Getenv("IDM_HOST") + "/ipa/session/json"
+	rpcURL := viper.GetString("IDM_HOST") + "/ipa/session/json"
 	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
 		&jsonrpc.RPCClientOpts{
 			AllowUnknownFields: true, // IdM returns principal
 			CustomHeaders: map[string]string{
-				"Referer":      os.Getenv("IDM_HOST") + "/ipa",
+				"Referer":      viper.GetString("IDM_HOST") + "/ipa",
 				"Content-Type": "application/json",
 				"Accept":       "application/json",
 			},
@@ -144,12 +145,12 @@ func findUserByLogin(client *http.Client, loginName string) (any, error) {
 
 func getDN(client *http.Client) (string, error) {
 	// Set connection
-	rpcURL := os.Getenv("IDM_HOST") + "/ipa/session/json"
+	rpcURL := viper.GetString("IDM_HOST") + "/ipa/session/json"
 	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
 		&jsonrpc.RPCClientOpts{
 			AllowUnknownFields: true, // IdM returns principal
 			CustomHeaders: map[string]string{
-				"Referer":      os.Getenv("IDM_HOST") + "/ipa",
+				"Referer":      viper.GetString("IDM_HOST") + "/ipa",
 				"Content-Type": "application/json",
 				"Accept":       "application/json",
 			},

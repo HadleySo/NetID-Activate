@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"math/big"
-	"os"
 	"text/template"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -16,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sesv2/types"
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/emailTemplate"
+	"github.com/spf13/viper"
 )
 
 func HandleSendOTP(email string) error {
@@ -59,10 +59,10 @@ func sendOTPemail(email string, otpCode big.Int) error {
 		Tenant          string
 	}{
 		Code:            otpCode.String(),
-		ServiceProvider: os.Getenv("LINK_SERVICE_PROVIDER"),
-		PrivacyPolicy:   os.Getenv("LINK_PRIVACY_POLICY"),
-		SiteName:        os.Getenv("SITE_NAME"),
-		Tenant:          os.Getenv("TENANT_NAME"),
+		ServiceProvider: viper.GetString("LINK_SERVICE_PROVIDER"),
+		PrivacyPolicy:   viper.GetString("LINK_PRIVACY_POLICY"),
+		SiteName:        viper.GetString("SITE_NAME"),
+		Tenant:          viper.GetString("TENANT_NAME"),
 	}
 	// 4. Execute into buffers
 	var htmlBody, textBody bytes.Buffer
@@ -77,9 +77,9 @@ func sendOTPemail(email string, otpCode big.Int) error {
 	fmt.Println(*aws.String(htmlBody.String()))
 
 	// 5. Prepare email parameters
-	from := os.Getenv("EMAIL_FROM")
+	from := viper.GetString("EMAIL_FROM")
 	to := email
-	subject := os.Getenv("TENANT_NAME") + " Activation Code"
+	subject := viper.GetString("TENANT_NAME") + " Activation Code"
 
 	input := &sesv2.SendEmailInput{
 		FromEmailAddress: &from,
@@ -98,7 +98,7 @@ func sendOTPemail(email string, otpCode big.Int) error {
 	}
 
 	// 6. Send the email
-	if os.Getenv("DEV") != "true" {
+	if viper.GetString("DEV") != "true" {
 		resp, err := client.SendEmail(context.TODO(), input)
 		if err != nil {
 			log.Println("Error sendOTPemail() to send email: " + err.Error())

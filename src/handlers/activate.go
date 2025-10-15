@@ -4,7 +4,6 @@ import (
 	"encoding/gob"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"text/template"
 
@@ -16,6 +15,7 @@ import (
 	"github.com/hadleyso/netid-activate/src/models"
 	idm "github.com/hadleyso/netid-activate/src/redhat-idm"
 	"github.com/hadleyso/netid-activate/src/scenes"
+	"github.com/spf13/viper"
 )
 
 var SessionCookieStore *sessions.CookieStore = nil
@@ -83,11 +83,7 @@ func ActivateEmailPost(w http.ResponseWriter, r *http.Request) {
 		}{
 			ActivateEmail: activateEmail,
 			EmailNotReset: emailNotResent,
-			PageBase: models.PageBase{
-				PageTitle:  os.Getenv("SITE_NAME"),
-				FaviconURL: os.Getenv("FAVICON_URL"),
-				LogoURL:    os.Getenv("LOGO_URL"),
-			},
+			PageBase:      models.NewPageBase(""),
 		},
 	)
 
@@ -117,13 +113,9 @@ func ActivateOTPPost(w http.ResponseWriter, r *http.Request) {
 				Message string
 				models.PageBase
 			}{
-				Message: "Your OTP code has expired or is invalid",
-				Tile:    "One Time Code ",
-				PageBase: models.PageBase{
-					PageTitle:  os.Getenv("SITE_NAME"),
-					FaviconURL: os.Getenv("FAVICON_URL"),
-					LogoURL:    os.Getenv("LOGO_URL"),
-				},
+				Message:  "Your OTP code has expired or is invalid",
+				Tile:     "One Time Code ",
+				PageBase: models.NewPageBase(""),
 			},
 		)
 		return
@@ -148,7 +140,7 @@ func ActivateOTPPost(w http.ResponseWriter, r *http.Request) {
 
 	// Set auth cookie
 	if SessionCookieStore == nil {
-		SessionCookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+		SessionCookieStore = sessions.NewCookieStore([]byte(viper.GetString("SESSION_KEY")))
 	}
 	session_IDCLAIM_ACTIVATION, _ := SessionCookieStore.Get(r, "IDCLAIM_ACTIVATION")
 	session_IDCLAIM_ACTIVATION.Options = &sessions.Options{
@@ -177,12 +169,8 @@ func ActivateOTPPost(w http.ResponseWriter, r *http.Request) {
 		}{
 			LoginNames:    usernameOptions,
 			InviteID:      inviteID,
-			PrivacyPolicy: os.Getenv("LINK_PRIVACY_POLICY"),
-			PageBase: models.PageBase{
-				PageTitle:  os.Getenv("SITE_NAME"),
-				FaviconURL: os.Getenv("FAVICON_URL"),
-				LogoURL:    os.Getenv("LOGO_URL"),
-			},
+			PrivacyPolicy: viper.GetString("LINK_PRIVACY_POLICY"),
+			PageBase:      models.NewPageBase(""),
 		},
 	)
 
@@ -206,7 +194,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Get cookie
 	if SessionCookieStore == nil {
-		SessionCookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+		SessionCookieStore = sessions.NewCookieStore([]byte(viper.GetString("SESSION_KEY")))
 	}
 	session_IDCLAIM_ACTIVATION, _ := SessionCookieStore.Get(r, "IDCLAIM_ACTIVATION")
 
@@ -246,13 +234,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 				Message string
 				models.PageBase
 			}{
-				Message: "There has been an error processing your request, either a security flag or other condition.",
-				Tile:    "Activation",
-				PageBase: models.PageBase{
-					PageTitle:  os.Getenv("SITE_NAME"),
-					FaviconURL: os.Getenv("FAVICON_URL"),
-					LogoURL:    os.Getenv("LOGO_URL"),
-				},
+				Message:  "There has been an error processing your request, either a security flag or other condition.",
+				Tile:     "Activation",
+				PageBase: models.NewPageBase(""),
 			},
 		)
 		return
@@ -284,13 +268,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 				Message string
 				models.PageBase
 			}{
-				Message: "Your account already exists, please login at: " + os.Getenv("LOGIN_REDIRECT"),
-				Tile:    "Activation",
-				PageBase: models.PageBase{
-					PageTitle:  os.Getenv("SITE_NAME"),
-					FaviconURL: os.Getenv("FAVICON_URL"),
-					LogoURL:    os.Getenv("LOGO_URL"),
-				},
+				Message:  "Your account already exists, please login at: " + viper.GetString("LOGIN_REDIRECT"),
+				Tile:     "Activation",
+				PageBase: models.NewPageBase(""),
 			},
 		)
 		return
@@ -332,7 +312,7 @@ func CreateSuccess(w http.ResponseWriter, r *http.Request) {
 
 	// Get cookie
 	if SessionCookieStore == nil {
-		SessionCookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+		SessionCookieStore = sessions.NewCookieStore([]byte(viper.GetString("SESSION_KEY")))
 	}
 
 	// Get flashes
@@ -356,16 +336,12 @@ func CreateSuccess(w http.ResponseWriter, r *http.Request) {
 			Tenant        string
 			models.PageBase
 		}{
-			Tenant:        os.Getenv("TENANT_NAME"),
+			Tenant:        viper.GetString("TENANT_NAME"),
 			LoginName:     flashData.LoginName,
 			FirstName:     flashData.FirstName,
 			Password:      flashData.Password,
-			LoginRedirect: os.Getenv("LOGIN_REDIRECT"),
-			PageBase: models.PageBase{
-				PageTitle:  os.Getenv("SITE_NAME"),
-				FaviconURL: os.Getenv("FAVICON_URL"),
-				LogoURL:    os.Getenv("LOGO_URL"),
-			},
+			LoginRedirect: viper.GetString("LOGIN_REDIRECT"),
+			PageBase:      models.NewPageBase(""),
 		},
 	)
 

@@ -3,7 +3,6 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"os"
 	"text/template"
 
 	"github.com/hadleyso/netid-activate/src/auth"
@@ -33,12 +32,8 @@ func GetSent(w http.ResponseWriter, r *http.Request) {
 			Invites []models.Invite
 			models.PageBase
 		}{
-			Invites: invites,
-			PageBase: models.PageBase{
-				PageTitle:  os.Getenv("SITE_NAME"),
-				FaviconURL: os.Getenv("FAVICON_URL"),
-				LogoURL:    os.Getenv("LOGO_URL"),
-			},
+			Invites:  invites,
+			PageBase: models.NewPageBase(""),
 		},
 	)
 }

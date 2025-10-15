@@ -2,16 +2,16 @@ package db
 
 import (
 	"log"
-	"os"
 
 	"github.com/hadleyso/netid-activate/src/models"
+	"github.com/spf13/viper"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 // Connect to db and return connection object
 func DbConnect() *gorm.DB {
-	var DB_PATH string = os.Getenv("DB_PATH")
+	var DB_PATH string = viper.GetString("DB_PATH")
 
 	db, err := gorm.Open(sqlite.Open(DB_PATH), &gorm.Config{})
 	if err != nil {

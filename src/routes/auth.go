@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hadleyso/netid-activate/src/auth"
+	"github.com/spf13/viper"
 	"github.com/zitadel/logging"
 	"github.com/zitadel/oidc/v3/pkg/client/rp"
 
@@ -22,14 +23,14 @@ var hqRelyingParty rp.RelyingParty
 func authRoutes() {
 
 	// App config
-	SERVER_HOSTNAME := os.Getenv("SERVER_HOSTNAME")
+	SERVER_HOSTNAME := viper.GetString("SERVER_HOSTNAME")
 
 	// OpenID Connect Client
-	clientID := os.Getenv("CLIENT_ID")
-	clientSecret := os.Getenv("CLIENT_SECRET")
-	issuer := os.Getenv("OIDC_WELL_KNOWN")
-	port := os.Getenv("OIDC_SERVER_PORT")
-	scopes := strings.Split(os.Getenv("SCOPES"), " ")
+	clientID := viper.GetString("CLIENT_ID")
+	clientSecret := viper.GetString("CLIENT_SECRET")
+	issuer := viper.GetString("OIDC_WELL_KNOWN")
+	port := viper.GetString("OIDC_SERVER_PORT")
+	scopes := strings.Split(viper.GetString("SCOPES"), " ")
 
 	// OIDC URIs
 	var redirectURI string
@@ -39,7 +40,7 @@ func authRoutes() {
 		redirectURI = fmt.Sprintf("%s%v", SERVER_HOSTNAME, auth.CallbackPath)
 	}
 
-	cookieHandler := httphelper.NewCookieHandler([]byte(os.Getenv("SESSION_KEY")), []byte(os.Getenv("SESSION_KEY")), httphelper.WithUnsecure())
+	cookieHandler := httphelper.NewCookieHandler([]byte(viper.GetString("SESSION_KEY")), []byte(viper.GetString("SESSION_KEY")), httphelper.WithUnsecure())
 
 	// Set Relying Party settings
 	options := []rp.Option{
