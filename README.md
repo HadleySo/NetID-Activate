@@ -115,8 +115,10 @@ Make a copy of [NETID.example.yaml](NETID.example.yaml) to `./NETID.yaml` or `./
 `IDM_HOST`: FQDN of IdM host  
 `IDM_USERNAME`: IdM Username  
 `IDM_PASSWORD`: IdM Password  
-`IDM_ADD_GROUP`: Comma separated groups to add new users to (no spaces)  
+`IDM_ADD_GROUP`: Comma separated groups to add all new users to (no spaces)  
 `IDM_GECOS`: If set to `true` will add country and affiliation to GECOS  
+`OPTIONAL_GROUPS`: YAML list of optional groups to add users to, selectable by 
+inviter. Set `group_required` to `""` for all inviters to use
 
 
 ## License  

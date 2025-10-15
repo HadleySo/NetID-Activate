@@ -8,6 +8,7 @@ import (
 	"text/template"
 
 	"github.com/hadleyso/netid-activate/src/auth"
+	"github.com/hadleyso/netid-activate/src/common"
 	"github.com/hadleyso/netid-activate/src/countries"
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/mailer"
@@ -24,7 +25,7 @@ func InviteGet(w http.ResponseWriter, r *http.Request) {
 func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 	// Get affiliation
 	affiliationsRaw := viper.Get("AFFILIATION")
-	affiliationList, ok := affiliationsRaw.([]interface{})
+	affiliationList, ok := affiliationsRaw.([]any)
 	if !ok {
 		log.Printf("InviteLandingPage() Expected affiliation to be a slice, but got %T", affiliationsRaw)
 		http.Redirect(w, r, "/500", http.StatusSeeOther)
@@ -33,7 +34,7 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 	affiliationMap := make(map[string]string)
 	for _, item := range affiliationList {
 		// Type assert each item to a map
-		affiliation, ok := item.(map[string]interface{})
+		affiliation, ok := item.(map[string]any)
 		if ok {
 			// Convert key-value pairs to string
 			for key, value := range affiliation {
@@ -46,17 +47,37 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	// Get inviter
+	user, errUser := auth.GetUser(w, r)
+	if errUser != nil {
+		http.Redirect(w, r, "/500?error=GetUser+error", http.StatusSeeOther)
+		return
+	}
+
+	// Optional Group
+	rawGroups, err := common.GetOptionalGroupLimited(user)
+	if err != nil {
+		http.Redirect(w, r, "/500", http.StatusSeeOther)
+		return
+	}
+	optionalGroup := make(map[string]string)
+	for _, group := range rawGroups {
+		optionalGroup[group.GroupName] = group.DisplayName
+	}
+
 	// Render template
 	tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/invite-form.html", "scenes/base.html"))
 	tmpl.ExecuteTemplate(w, "base",
 		struct {
-			Affiliation map[string]string
-			Countries   []countries.Country
+			Affiliation   map[string]string
+			OptionalGroup map[string]string
+			Countries     []countries.Country
 			models.PageBase
 		}{
-			Affiliation: affiliationMap,
-			Countries:   countries.Countries,
-			PageBase:    models.NewPageBase(""),
+			Affiliation:   affiliationMap,
+			OptionalGroup: optionalGroup,
+			Countries:     countries.Countries,
+			PageBase:      models.NewPageBase(""),
 		},
 	)
 
@@ -109,6 +130,28 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get inviter
+	user, errUser := auth.GetUser(w, r)
+	if errUser != nil {
+		http.Redirect(w, r, "/500?error=GetUser+error", http.StatusSeeOther)
+		return
+	}
+
+	// Optional Group
+	rawGroups, err := common.GetOptionalGroupLimited(user)
+	if err != nil {
+		http.Redirect(w, r, "/500", http.StatusSeeOther)
+		return
+	}
+
+	// Get selected form Optional Groups
+	optionalGroups := []string{}
+	for _, group := range rawGroups {
+		if r.Form.Get(group.GroupName) == "yes" {
+			optionalGroups = append(optionalGroups, group.GroupName)
+		}
+	}
+
 	// Check if email in directory
 	emailExists, err := idm.CheckEmailExists(email)
 	if err != nil {
@@ -132,16 +175,11 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get inviter
-	user, errUser := auth.GetUser(w, r)
-	if errUser != nil {
-		http.Redirect(w, r, "/500?error=GetUser+error", http.StatusSeeOther)
-		return
-	}
+	// Get inviter info
 	inviter := user.PreferredUsername
 
 	// Add to DB
-	dbSuccess, err := db.HandleInvite(firstName, lastName, email, state, country, affiliation, inviter)
+	dbSuccess, err := db.HandleInvite(firstName, lastName, email, state, country, affiliation, inviter, optionalGroups)
 	if dbSuccess == false {
 		http.Redirect(w, r, "/500?error=DB+HandleInvite+error", http.StatusSeeOther)
 		return

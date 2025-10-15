@@ -33,3 +33,11 @@ IDM_HOST: https://redhat.idm.example.com
 IDM_USERNAME: username
 IDM_PASSWORD: password
 IDM_ADD_GROUP: acl_group,app_group
+
+OPTIONAL_GROUPS:
+  app_group: 
+    - group_required: "app_group_manager"
+    - group_name: "XYZ App Access"
+  desktop_users:
+    - group_required: "desktop_manger_group"
+    - group_name: "Access to Desktops"
