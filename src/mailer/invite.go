@@ -21,7 +21,7 @@ func HandleSendInvite(email string) error {
 	// 1. Load AWS SDK configuration (uses env vars)
 	ctx := context.Background()
 	cfg, err := config.LoadDefaultConfig(ctx,
-		config.WithRegion(viper.GetString("aws.region")),
+		config.WithRegion(viper.GetString("AWS_REGION")),
 		config.WithCredentialsProvider(
 			credentials.NewStaticCredentialsProvider(
 				viper.GetString("AWS_ACCESS_KEY_ID"),
