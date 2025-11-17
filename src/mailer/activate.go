@@ -11,6 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2/types"
 	"github.com/hadleyso/netid-activate/src/db"
@@ -39,7 +40,16 @@ func HandleSendOTP(email string) error {
 func sendOTPemail(email string, otpCode big.Int) error {
 	// 1. Load AWS SDK configuration (uses env vars)
 	ctx := context.Background()
-	cfg, err := config.LoadDefaultConfig(ctx)
+	cfg, err := config.LoadDefaultConfig(ctx,
+		config.WithRegion(viper.GetString("aws.region")),
+		config.WithCredentialsProvider(
+			credentials.NewStaticCredentialsProvider(
+				viper.GetString("AWS_ACCESS_KEY_ID"),
+				viper.GetString("AWS_SECRET_ACCESS_KEY"),
+				"",
+			),
+		),
+	)
 	if err != nil {
 		log.Println("HandleSendInvite() unable to load AWS config")
 		return err
