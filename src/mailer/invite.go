@@ -24,8 +24,8 @@ func HandleSendInvite(email string) error {
 		config.WithRegion(viper.GetString("aws.region")),
 		config.WithCredentialsProvider(
 			credentials.NewStaticCredentialsProvider(
-				viper.GetString("aws.access_key_id"),
-				viper.GetString("aws.secret_access_key"),
+				viper.GetString("AWS_ACCESS_KEY_ID"),
+				viper.GetString("AWS_SECRET_ACCESS_KEY"),
 				"",
 			),
 		),
