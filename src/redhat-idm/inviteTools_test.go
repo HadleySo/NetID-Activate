@@ -15,7 +15,7 @@ func TestCheckEmailExists_LoginFailure(t *testing.T) {
 	mux.HandleFunc("/ipa/session/login_password", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 	})
-	_ = setupIDMTestServer(t, mux)
+	_ = setupIDMTestServerBroken(t, mux)
 
 	_, err := CheckEmailExists("test@example.com")
 	if err == nil {
@@ -48,7 +48,7 @@ func TestCheckManagedGroup(t *testing.T) {
 			}
 		}`))
 	})
-	_ = setupIDMTestServer(t, mux)
+	_ = setupIDMTestServerReplicate(t, mux)
 
 	user := &models.UserInfo{PreferredUsername: "testuser"}
 	groups := map[string][]config.Group{

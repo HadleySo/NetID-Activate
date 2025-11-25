@@ -16,6 +16,7 @@ clean:
 	rm ./bin/${BINARY_NAME}
 
 test:
+	go test -cover ./src/auth
 	go test -cover ./src/common
 	go test -cover ./src/db
 	go test -cover ./src/handlers

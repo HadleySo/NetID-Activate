@@ -141,6 +141,10 @@ func CheckManagedGroup(user *models.UserInfo, groups map[string][]config.Group) 
 
 	for _, r := range response.Results {
 
+		if len(r.Result.CN) < 1 {
+			continue
+		}
+
 		cn := r.Result.CN[0]
 		if r.Result.MemberManagerUser == nil {
 			continue

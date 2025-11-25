@@ -11,7 +11,7 @@ func TestCheckUsernamesExists_LoginFailure(t *testing.T) {
 	mux.HandleFunc("/ipa/session/login_password", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 	})
-	_ = setupIDMTestServer(t, mux)
+	_ = setupIDMTestServerBroken(t, mux)
 
 	_, err := CheckUsernamesExists([]string{"user1"})
 	if err == nil {
