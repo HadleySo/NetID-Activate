@@ -1,25 +1,16 @@
 package common
 
 import (
-	"errors"
-	"log"
+	"fmt"
 
+	"github.com/hadleyso/netid-activate/src/config"
 	"github.com/hadleyso/netid-activate/src/models"
-	"github.com/spf13/viper"
+	idm "github.com/hadleyso/netid-activate/src/redhat-idm"
 )
 
-type optionalGroups struct {
-	GroupName     string
-	RequiredGroup string
-	DisplayName   string
-}
-
 // Get optional groups that user can add to
-func GetOptionalGroupLimited(user *models.UserInfo) ([]optionalGroups, error) {
-	groupReturn, err := GetOptionalGroup()
-	if err != nil {
-		return groupReturn, err
-	}
+func GetOptionalGroupLimited(user *models.UserInfo) ([]config.Group, error) {
+	optionalGroups := config.C.OptionalGroups
 
 	// Quick search
 	inviterGroups := make(map[string]int)
@@ -30,65 +21,30 @@ func GetOptionalGroupLimited(user *models.UserInfo) ([]optionalGroups, error) {
 	// Allow empty to be included
 	inviterGroups[""] = 0
 
-	var filterGroup []optionalGroups
-	for _, item := range groupReturn {
-		if _, ok := inviterGroups[item.RequiredGroup]; ok {
-			filterGroup = append(filterGroup, item)
-		}
-	}
-	return filterGroup, nil
-}
-
-// Get all optional groups
-func GetOptionalGroup() ([]optionalGroups, error) {
-
-	// Not set in config
-	if !viper.IsSet("OPTIONAL_GROUPS") {
-		return []optionalGroups{}, nil
-	}
-
-	groupsRaw := viper.Get("OPTIONAL_GROUPS")
-
-	groupsMap, ok := groupsRaw.(map[string]any)
-	if !ok {
-		log.Printf("InviteLandingPage() Expected OPTIONAL_GROUPS to be a slice, but got %T", groupsRaw)
-		return []optionalGroups{}, errors.New("Expected OPTIONAL_GROUPS to be a slice")
-	}
-
-	groupReturn := []optionalGroups{}
-	for group, groupSetting := range groupsMap {
-		// For each group
-
-		sliceSettings, ok := groupSetting.([]any)
-		if !ok {
-			log.Printf("InviteLandingPage() Expected OPTIONAL_GROUPS items to be a slice, but got %T", groupSetting)
-			return []optionalGroups{}, errors.New("Expected OPTIONAL_GROUPS items to be a slice")
-		}
-
-		optGroup := optionalGroups{}
-		for _, settingItem := range sliceSettings {
-			// For settings in the group
-
-			settingItemMap, ok := settingItem.(map[string]any)
-			if !ok {
-				log.Printf("InviteLandingPage() Expected OPTIONAL_GROUPS item settings to be a map string, but got %T", settingItem)
-				return []optionalGroups{}, errors.New("Expected OPTIONAL_GROUPS item settings to be a map string")
+	var filterGroup []config.Group
+	for _, groups := range optionalGroups {
+		for _, g := range groups {
+			if g.MemberManager {
+				// Skip if managed
+				continue
 			}
-			for settingKey, settingValue := range settingItemMap {
-				switch settingKey {
-				case "group_required":
-					optGroup.RequiredGroup = settingValue.(string)
-				case "group_name":
-					optGroup.DisplayName = settingValue.(string)
+
+			if _, ok := inviterGroups[g.RequiredGroup]; ok {
+				if g.MemberManager != true {
+					filterGroup = append(filterGroup, g)
+					fmt.Println(g.GroupName, g.MemberManager)
 				}
+
 			}
 		}
-
-		optGroup.GroupName = group
-		groupReturn = append(groupReturn, optGroup)
-
 	}
 
-	return groupReturn, nil
+	err, managedGroups := idm.CheckManagedGroup(user, optionalGroups)
+	if err != nil {
+		return nil, err
+	}
 
+	filterGroup = append(filterGroup, managedGroups...)
+
+	return filterGroup, nil
 }

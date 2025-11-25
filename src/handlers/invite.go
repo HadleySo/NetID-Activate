@@ -62,7 +62,7 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 	}
 	optionalGroup := make(map[string]string)
 	for _, group := range rawGroups {
-		optionalGroup[group.GroupName] = group.DisplayName
+		optionalGroup[group.GroupName] = group.GroupName
 	}
 
 	// Render template
