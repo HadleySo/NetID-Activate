@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/hadleyso/netid-activate/src/config"
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/models"
 	"github.com/hadleyso/netid-activate/src/routes"
@@ -23,8 +24,12 @@ func main() {
 	viper.AddConfigPath("./data")
 
 	err := viper.ReadInConfig()
+	errUnmarshal := viper.Unmarshal(&config.C)
 
 	// Viper errors
+	if errUnmarshal != nil {
+		panic(fmt.Errorf("fatal error config file: %v", errUnmarshal))
+	}
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
