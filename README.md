@@ -60,9 +60,8 @@ permissions are needed:
 - Rights: add
 - Effective attributes: gecos, pager, loginshell, givenname, manager, st, userpassword, cn, initials, sn, displayname, mail
 
-#### Modify Group (One for each group)
-- Rights: write 
-- Extra target filter: `(cn=<GROUP UID>)`, `(objectclass=ipausergroup)`
+#### member managers (One for each group)
+For each group add the system account to the `member managers` 
 
 #### System: Add User to default group
 The default system permission
