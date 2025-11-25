@@ -64,7 +64,8 @@ func CheckEmailExists(email string) (bool, error) {
 	return count != 0, nil
 }
 
-// Retrieve u
+// Retrieve optional groups that give user has
+// permissions for based on MemberManager LDAP
 func CheckManagedGroup(user *models.UserInfo, groups map[string][]config.Group) (error, []config.Group) {
 
 	var filterGroup []config.Group
