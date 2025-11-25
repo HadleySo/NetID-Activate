@@ -145,9 +145,9 @@ func CheckManagedGroup(user *models.UserInfo, groups map[string][]config.Group) 
 			continue
 		}
 		if slices.Contains(r.Result.MemberManagerUser, user.PreferredUsername) {
-			log.Println("Adding group for " + user.PreferredUsername + " - " + cn)
-			fmt.Println(groups[cn])
-			filterGroup = append(filterGroup, groups[cn][0])
+			group := groups[cn][0]
+			group.CN = cn
+			filterGroup = append(filterGroup, group)
 		}
 	}
 

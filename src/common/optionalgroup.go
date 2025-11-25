@@ -1,8 +1,6 @@
 package common
 
 import (
-	"fmt"
-
 	"github.com/hadleyso/netid-activate/src/config"
 	"github.com/hadleyso/netid-activate/src/models"
 	idm "github.com/hadleyso/netid-activate/src/redhat-idm"
@@ -22,7 +20,7 @@ func GetOptionalGroupLimited(user *models.UserInfo) ([]config.Group, error) {
 	inviterGroups[""] = 0
 
 	var filterGroup []config.Group
-	for _, groups := range optionalGroups {
+	for cn, groups := range optionalGroups {
 		for _, g := range groups {
 			if g.MemberManager {
 				// Skip if managed
@@ -31,8 +29,8 @@ func GetOptionalGroupLimited(user *models.UserInfo) ([]config.Group, error) {
 
 			if _, ok := inviterGroups[g.RequiredGroup]; ok {
 				if g.MemberManager != true {
+					g.CN = cn
 					filterGroup = append(filterGroup, g)
-					fmt.Println(g.GroupName, g.MemberManager)
 				}
 
 			}

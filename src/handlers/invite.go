@@ -62,7 +62,7 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 	}
 	optionalGroup := make(map[string]string)
 	for _, group := range rawGroups {
-		optionalGroup[group.GroupName] = group.GroupName
+		optionalGroup[group.CN] = group.GroupName
 	}
 
 	// Render template
@@ -147,8 +147,8 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	// Get selected form Optional Groups
 	optionalGroups := []string{}
 	for _, group := range rawGroups {
-		if r.Form.Get(group.GroupName) == "yes" {
-			optionalGroups = append(optionalGroups, group.GroupName)
+		if r.Form.Get(group.CN) == "yes" {
+			optionalGroups = append(optionalGroups, group.CN)
 		}
 	}
 

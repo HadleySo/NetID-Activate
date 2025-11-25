@@ -34,6 +34,7 @@ type Group struct {
 	RequiredGroup string `mapstructure:"group_required" yaml:"group_required"`
 	GroupName     string `mapstructure:"group_name" yaml:"group_name"`
 	MemberManager bool   `mapstructure:"memberManager" yaml:"memberManager"`
+	CN            string
 }
 
 var C Config
