@@ -40,13 +40,14 @@ func HandleMakeUser(invite models.Invite, loginName string) (string, error) {
 	// Create user
 	_, err := makeUser(client, loginName, invite.Email, invite.FirstName, invite.LastName, invite.Country, invite.Affiliation, pin, invite.State, invite.Inviter)
 	if err != nil {
+		log.Println("MakeUser() unable to makeUser() " + err.Error())
 		return "", err
-
 	}
 
 	// Add to groups
 	var groups []string
 	if err := json.Unmarshal(invite.OptionalGroups, &groups); err != nil {
+		log.Println("MakeUser() unable to json.Unmarshal() " + err.Error())
 		return "", err
 	}
 	groups = append(groups, strings.Split(viper.GetString("IDM_ADD_GROUP"), ",")...)
@@ -67,14 +68,12 @@ func makeUser(client *http.Client, uid string, email string, firstName string, l
 
 	// Get value
 	alpha2, errCountry := countries.GetAlpha2FromAlpha3(country)
-	if errCountry == false {
-		log.Println("makeUser() GetAlpha2FromAlpha3 error")
-		return nil, fmt.Errorf("makeUser() error in GetAlpha2FromAlpha3()")
+	if errCountry != nil {
+		return nil, errCountry
 	}
 	countryName, errCountry := countries.GetNameFromAlpha3(country)
-	if errCountry == false {
-		log.Println("makeUser() GetAlpha2FromAlpha3 error")
-		return nil, fmt.Errorf("makeUser() error in GetAlpha2FromAlpha3()")
+	if errCountry != nil {
+		return nil, errCountry
 	}
 
 	// Set st

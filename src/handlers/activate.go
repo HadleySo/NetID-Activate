@@ -245,6 +245,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Check user doesn't exist (email)
 	emailExists, err := idm.CheckEmailExists(invite.Email)
 	if err != nil {
+		log.Println("Call to CheckEmailExists() in CreateUser() src/handlers/activate.go error - " + err.Error())
 		http.Redirect(w, r, "/500", http.StatusSeeOther)
 		return
 	}
@@ -254,6 +255,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	if emailExists == false {
 		readyNames, err := idm.CheckUsernamesExists([]string{loginName})
 		if err != nil {
+			log.Println("Call to CheckUsernamesExists() in CreateUser() src/handlers/activate.go error - " + err.Error())
 			http.Redirect(w, r, "/500", http.StatusSeeOther)
 			return
 		}
@@ -279,6 +281,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Call maker
 	passwd, err := idm.HandleMakeUser(invite, loginName)
 	if err != nil {
+		log.Println("Call to HandleMakeUser() in CreateUser() src/handlers/activate.go error - " + err.Error())
 		http.Redirect(w, r, "/500", http.StatusSeeOther)
 		return
 	}

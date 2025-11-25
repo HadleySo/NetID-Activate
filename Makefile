@@ -18,5 +18,9 @@ clean:
 test:
 	go test -cover ./src/common
 	go test -cover ./src/db
+	go test -cover ./src/handlers
 	go test -cover ./src/redhat-idm
 	
+coverage:
+	go test -coverprofile=coverage.out ./...
+	go tool cover -func=coverage.out
