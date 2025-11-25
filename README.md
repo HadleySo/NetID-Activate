@@ -112,14 +112,16 @@ Make a copy of [NETID.example.yaml](NETID.example.yaml) to `./NETID.yaml` or `./
 `AWS_SECRET_ACCESS_KEY`: SES Credentials  
 
 #### Red Hat IdM 
-`CACERT_PATH`: Absolute path to CA  
-`IDM_HOST`: FQDN of IdM host  
-`IDM_USERNAME`: IdM Username  
-`IDM_PASSWORD`: IdM Password  
-`IDM_ADD_GROUP`: Comma separated groups to add all new users to (no spaces)  
-`IDM_GECOS`: If set to `true` will add country and affiliation to GECOS  
-`OPTIONAL_GROUPS`: YAML list of optional groups to add users to, selectable by 
-inviter. Set `group_required` to `""` for all inviters to use
+- `CACERT_PATH`: Absolute path to CA  
+- `IDM_HOST`: FQDN of IdM host  
+- `IDM_USERNAME`: IdM Username  
+- `IDM_PASSWORD`: IdM Password  
+- `IDM_ADD_GROUP`: Comma separated groups to add all new users to (no spaces)  
+- `IDM_GECOS`: If set to `true` will add country and affiliation to GECOS  
+- `OPTIONAL_GROUPS`:  YAML list of optional groups to add users to, selectable by inviter.
+    - `group_required` list of user groups that are allowed to add invitees, use `""` for all inviters to use 
+    - If `memberManager` is set to `true` then LDAP attribute `memberManager` will be use to determine if the inviter can add the invitee to the group. Does not support `membermanager_group`. 
+    - If `memberManager` is set to `true`, the value of `group_required` is ignored
 
 
 ## License  
