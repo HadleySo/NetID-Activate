@@ -13,6 +13,8 @@ import (
 	"os"
 	"strings"
 
+	"errors"
+
 	"github.com/hadleyso/netid-activate/src/models"
 	"github.com/spf13/viper"
 	"github.com/ybbus/jsonrpc/v3"
@@ -74,7 +76,7 @@ func login(client *http.Client, user string, password string) error {
 
 	if resp.StatusCode != http.StatusOK {
 		log.Println("RedHat IdM login failed: " + resp.Status)
-		return fmt.Errorf("RedHat IdM login failed: %s", resp.Status)
+		return errors.New("RedHat IdM login failed")
 	}
 	return nil
 }

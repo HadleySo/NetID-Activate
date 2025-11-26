@@ -104,7 +104,7 @@ func CheckManagedGroup(user *models.UserInfo, groups map[string][]config.Group) 
 	err, response := getGroupBatch(client, batchParams)
 	if err != nil {
 		log.Println("CheckEmailExists() unable to getGroupBatch() " + err.Error())
-		return errClient, nil
+		return err, nil
 	}
 
 	// Got group result info with Member Managers
