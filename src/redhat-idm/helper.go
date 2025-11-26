@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/hadleyso/netid-activate/src/models"
 	"github.com/spf13/viper"
 	"github.com/ybbus/jsonrpc/v3"
 )
@@ -203,4 +205,89 @@ func getDN(client *http.Client) (string, error) {
 	fmt.Println("getDN() result not found or not a map")
 	return "", fmt.Errorf("getDN() result not found or not a map")
 
+}
+
+// Get group information as batch call
+// client must be authenticated
+func getGroupBatch(client *http.Client, cns []string) (error, models.BatchResponse) {
+
+	// Params
+	batchParams := []any{}
+	for _, cn := range cns {
+		entry := map[string]any{
+			"method": "group_show",
+			"params": []any{
+				[]string{cn},
+				map[string]any{"no_members": false},
+			},
+		}
+		batchParams = append(batchParams, entry)
+	}
+
+	// If empty don't run
+	if len(batchParams) == 0 {
+		return nil, models.BatchResponse{}
+	}
+
+	rpcURL := viper.GetString("IDM_HOST") + "/ipa/session/json"
+	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
+		&jsonrpc.RPCClientOpts{
+			AllowUnknownFields: true, // IdM returns principal
+			CustomHeaders: map[string]string{
+				"Referer":      viper.GetString("IDM_HOST") + "/ipa",
+				"Content-Type": "application/json",
+				"Accept":       "application/json",
+			},
+			HTTPClient: client,
+		})
+
+	resp, err := rpcClient.Call(context.Background(), "batch", batchParams, map[string]any{})
+	if err != nil {
+		log.Println("CheckManagedGroup() call error")
+		return err, models.BatchResponse{}
+	}
+	if resp.Error != nil {
+		log.Println("CheckManagedGroup() response error: " + resp.Error.Message)
+		return error(fmt.Errorf("RPC error: %v", resp.Error.Message)), models.BatchResponse{}
+	}
+
+	var response models.BatchResponse
+	data, err := json.Marshal(resp.Result)
+	if err != nil {
+		panic(err)
+	}
+	if err := json.Unmarshal(data, &response); err != nil {
+		panic(err)
+	}
+	return nil, response
+}
+
+func makeCachedGetGroupBatch(client *http.Client) func([]string) (error, models.BatchResponse) {
+	var cache = map[string]models.ResultHolder{}
+
+	return func(cns []string) (error, models.BatchResponse) {
+		var response = models.BatchResponse{}
+
+		var newCN []string
+		for _, k := range cns {
+			if v, ok := cache[k]; ok {
+				response.Results = append(response.Results, v)
+			} else {
+				newCN = append(newCN, k)
+			}
+		}
+
+		err, subResponse := getGroupBatch(client, cns)
+		if err != nil {
+			return err, models.BatchResponse{}
+		}
+
+		for _, r := range subResponse.Results {
+			response.Results = append(response.Results, r) // Combine with cached results
+			cache[r.Result.CN[0]] = r                      // Update cache
+		}
+
+		response.Count = subResponse.Count + len(response.Results) // Combine with cached results
+		return nil, response
+	}
 }

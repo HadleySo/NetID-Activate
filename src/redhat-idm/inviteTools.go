@@ -1,7 +1,6 @@
 package idm
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,7 +9,6 @@ import (
 	"github.com/hadleyso/netid-activate/src/config"
 	"github.com/hadleyso/netid-activate/src/models"
 	"github.com/spf13/viper"
-	"github.com/ybbus/jsonrpc/v3"
 )
 
 // Checks if email exists in IdM
@@ -71,20 +69,13 @@ func CheckManagedGroup(user *models.UserInfo, groups map[string][]config.Group) 
 	var filterGroup []config.Group
 
 	// Params
-	batchParams := []any{}
+	batchParams := []string{}
 
 	for cn, group := range groups {
 		for _, g := range group {
 			// Special handling for MemberManager groups.
 			if g.MemberManager {
-				entry := map[string]any{
-					"method": "group_show",
-					"params": []any{
-						[]string{cn},
-						map[string]any{"no_members": false},
-					},
-				}
-				batchParams = append(batchParams, entry)
+				batchParams = append(batchParams, cn)
 			}
 		}
 	}
@@ -108,36 +99,17 @@ func CheckManagedGroup(user *models.UserInfo, groups map[string][]config.Group) 
 		return errLogin, nil
 	}
 
-	rpcURL := viper.GetString("IDM_HOST") + "/ipa/session/json"
-	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
-		&jsonrpc.RPCClientOpts{
-			AllowUnknownFields: true, // IdM returns principal
-			CustomHeaders: map[string]string{
-				"Referer":      viper.GetString("IDM_HOST") + "/ipa",
-				"Content-Type": "application/json",
-				"Accept":       "application/json",
-			},
-			HTTPClient: client,
-		})
+	// Login complete, get group info
 
-	resp, err := rpcClient.Call(context.Background(), "batch", batchParams, map[string]any{})
+	err, response := getGroupBatch(client, batchParams)
 	if err != nil {
-		log.Println("CheckManagedGroup() call error")
-		return err, nil
-	}
-	if resp.Error != nil {
-		log.Println("CheckManagedGroup() response error: " + resp.Error.Message)
-		return error(fmt.Errorf("RPC error: %v", resp.Error.Message)), nil
+		log.Println("CheckEmailExists() unable to getGroupBatch() " + err.Error())
+		return errClient, nil
 	}
 
-	var response models.BatchResponse
-	data, err := json.Marshal(resp.Result)
-	if err != nil {
-		panic(err)
-	}
-	if err := json.Unmarshal(data, &response); err != nil {
-		panic(err)
-	}
+	// Got group result info with Member Managers
+
+	cachedGetGroupBatch := makeCachedGetGroupBatch(client)
 
 	for _, r := range response.Results {
 
@@ -146,15 +118,45 @@ func CheckManagedGroup(user *models.UserInfo, groups map[string][]config.Group) 
 		}
 
 		cn := r.Result.CN[0]
-		if r.Result.MemberManagerUser == nil {
+		group := groups[cn][0]
+		group.CN = cn
+
+		// No manager
+		if r.Result.MemberManagerUser == nil && r.Result.MemberManagerGroup == nil {
 			continue
 		}
-		if slices.Contains(r.Result.MemberManagerUser, user.PreferredUsername) {
-			group := groups[cn][0]
-			group.CN = cn
+
+		// Direct member‑manager user
+		if r.Result.MemberManagerUser != nil && userInSlice(user.PreferredUsername, r.Result.MemberManagerUser) {
 			filterGroup = append(filterGroup, group)
+			log.Printf("CheckManagedGroup() user %s direct manager %s\n", user.PreferredUsername, group.CN)
+			continue
 		}
+
+		// Don't run if not available
+		if r.Result.MemberManagerGroup == nil {
+			continue
+		}
+
+		// Check if user is in the group that can manage
+		err, mgrGroupResponse := cachedGetGroupBatch(r.Result.MemberManagerGroup)
+		if err != nil {
+			log.Println("CheckEmailExists() unable to cachedGetGroupBatch() " + err.Error())
+			return errClient, nil
+		}
+
+		for _, managedResponseResult := range mgrGroupResponse.Results {
+			if managedResponseResult.Result.MemberUser != nil && userInSlice(user.PreferredUsername, managedResponseResult.Result.MemberUser) {
+				log.Printf("CheckManagedGroup() user %s group manager %s\n", user.PreferredUsername, group.CN)
+				filterGroup = append(filterGroup, group)
+			}
+		}
+
 	}
 
 	return nil, filterGroup
+}
+
+func userInSlice(username string, list []string) bool {
+	return slices.Contains(list, username)
 }

@@ -22,10 +22,12 @@ type ResultHolder struct {
 }
 
 type GroupResult struct {
-	CN                []string `json:"cn"`
-	Description       []string `json:"description"`
-	DN                string   `json:"dn"`
-	GIDNumber         []string `json:"gidnumber"`
-	MemberGroup       []string `json:"member_group,omitempty"`
-	MemberManagerUser []string `json:"membermanager_user,omitempty"`
+	CN                 []string `json:"cn"`
+	Description        []string `json:"description"`
+	DN                 string   `json:"dn"`
+	GIDNumber          []string `json:"gidnumber"`
+	MemberUser         []string `json:"member_user,omitempty"`
+	MemberGroup        []string `json:"member_group,omitempty"`
+	MemberManagerUser  []string `json:"membermanager_user,omitempty"`
+	MemberManagerGroup []string `json:"membermanager_group,omitempty"`
 }
