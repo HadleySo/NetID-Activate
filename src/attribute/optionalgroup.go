@@ -1,4 +1,4 @@
-package common
+package attribute
 
 import (
 	"github.com/hadleyso/netid-activate/src/config"

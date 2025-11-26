@@ -9,7 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"github.com/hadleyso/netid-activate/src/common"
+	"github.com/hadleyso/netid-activate/src/attribute"
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/mailer"
 	"github.com/hadleyso/netid-activate/src/models"
@@ -130,7 +130,7 @@ func ActivateOTPPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate login names and save
-	usernameOptions, err := common.GetLoginOptions(invite)
+	usernameOptions, err := attribute.GetLoginOptions(invite)
 	if err != nil {
 		log.Println("Call to InviteDetails() in ActivateOTPPost() src/handlers/activate.go error")
 		http.Redirect(w, r, "/500", http.StatusSeeOther)

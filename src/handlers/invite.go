@@ -7,8 +7,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/hadleyso/netid-activate/src/attribute"
 	"github.com/hadleyso/netid-activate/src/auth"
-	"github.com/hadleyso/netid-activate/src/common"
 	"github.com/hadleyso/netid-activate/src/countries"
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/mailer"
@@ -55,7 +55,7 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Optional Group
-	rawGroups, err := common.GetOptionalGroupLimited(user)
+	rawGroups, err := attribute.GetOptionalGroupLimited(user)
 	if err != nil {
 		http.Redirect(w, r, "/500", http.StatusSeeOther)
 		return
@@ -138,7 +138,7 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Optional Group
-	rawGroups, err := common.GetOptionalGroupLimited(user)
+	rawGroups, err := attribute.GetOptionalGroupLimited(user)
 	if err != nil {
 		http.Redirect(w, r, "/500", http.StatusSeeOther)
 		return
