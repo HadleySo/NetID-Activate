@@ -8,3 +8,10 @@ type UserInfo struct {
 	FamilyName        string   `json:"family_name"`
 	Email             string   `json:"email"`
 }
+
+type OptionalGroups struct {
+	GroupName     string
+	RequiredGroup string
+	DisplayName   string
+	MemberManager bool
+}

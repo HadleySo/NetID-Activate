@@ -7,8 +7,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/hadleyso/netid-activate/src/attribute"
 	"github.com/hadleyso/netid-activate/src/auth"
-	"github.com/hadleyso/netid-activate/src/common"
 	"github.com/hadleyso/netid-activate/src/countries"
 	"github.com/hadleyso/netid-activate/src/db"
 	"github.com/hadleyso/netid-activate/src/mailer"
@@ -55,14 +55,14 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Optional Group
-	rawGroups, err := common.GetOptionalGroupLimited(user)
+	rawGroups, err := attribute.GetOptionalGroupLimited(user)
 	if err != nil {
 		http.Redirect(w, r, "/500", http.StatusSeeOther)
 		return
 	}
 	optionalGroup := make(map[string]string)
 	for _, group := range rawGroups {
-		optionalGroup[group.GroupName] = group.DisplayName
+		optionalGroup[group.CN] = group.GroupName
 	}
 
 	// Render template
@@ -138,7 +138,7 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Optional Group
-	rawGroups, err := common.GetOptionalGroupLimited(user)
+	rawGroups, err := attribute.GetOptionalGroupLimited(user)
 	if err != nil {
 		http.Redirect(w, r, "/500", http.StatusSeeOther)
 		return
@@ -147,8 +147,8 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	// Get selected form Optional Groups
 	optionalGroups := []string{}
 	for _, group := range rawGroups {
-		if r.Form.Get(group.GroupName) == "yes" {
-			optionalGroups = append(optionalGroups, group.GroupName)
+		if r.Form.Get(group.CN) == "yes" {
+			optionalGroups = append(optionalGroups, group.CN)
 		}
 	}
 

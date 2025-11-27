@@ -37,7 +37,10 @@ IDM_ADD_GROUP: acl_group,app_group
 OPTIONAL_GROUPS:
   app_group: 
     - group_required: "app_group_manager"
-    - group_name: "XYZ App Access"
+      group_name: "XYZ App Access"
   desktop_users:
     - group_required: "desktop_manger_group"
-    - group_name: "Access to Desktops"
+      group_name: "Access to Desktops"
+  managed_group:
+    - memberManager: true
+      group_name: "Managed by LDAP Attribute memberManager"

@@ -1,5 +1,7 @@
 package countries
 
+import "errors"
+
 type Country struct {
 	Name   string
 	Alpha2 string
@@ -15,22 +17,22 @@ func Alpha3Exists(code string) bool {
 	return false
 }
 
-func GetAlpha2FromAlpha3(code string) (string, bool) {
+func GetAlpha2FromAlpha3(code string) (string, error) {
 	for _, c := range Countries {
 		if c.Alpha3 == code {
-			return c.Alpha2, true
+			return c.Alpha2, nil
 		}
 	}
-	return "", false
+	return "", errors.New("Unable to convert Alpha3 to Alpha2 - " + code)
 }
 
-func GetNameFromAlpha3(code string) (string, bool) {
+func GetNameFromAlpha3(code string) (string, error) {
 	for _, c := range Countries {
 		if c.Alpha3 == code {
-			return c.Name, true
+			return c.Name, nil
 		}
 	}
-	return "", false
+	return "", errors.New("Unable to convert Alpha3 to Name")
 }
 
 var Countries = []Country{

@@ -1,4 +1,4 @@
-package common
+package attribute
 
 import (
 	"math/rand/v2"
