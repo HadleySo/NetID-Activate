@@ -40,7 +40,7 @@ func InviteLandingPage(w http.ResponseWriter, r *http.Request) {
 			for key, value := range affiliation {
 				// Convert to string
 				if strValue, ok := value.(string); ok {
-					affiliationMap[key] = strValue
+					affiliationMap[strings.ToUpper(key)] = strValue
 				}
 			}
 		}

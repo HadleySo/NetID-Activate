@@ -50,6 +50,7 @@ func TestInviteLandingPage(t *testing.T) {
 	affiliations := []any{
 		map[string]any{"student": "Student"},
 		map[string]any{"faculty": "Faculty"},
+		map[string]any{"CAPITALfaculty": "Faculty In Caps"},
 	}
 	viper.Set("AFFILIATION", affiliations)
 	config.C.OptionalGroups = map[string][]config.Group{
@@ -76,6 +77,7 @@ func TestInviteLandingPage(t *testing.T) {
 	assert.Contains(t, rr.Body.String(), "Student")
 	assert.Contains(t, rr.Body.String(), "Faculty")
 	assert.Contains(t, rr.Body.String(), "Test Group")
+	assert.Contains(t, rr.Body.String(), "CAPITALFACULTY")
 }
 
 func TestInviteSubmit_Success(t *testing.T) {
