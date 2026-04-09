@@ -104,6 +104,7 @@ func TestInviteSubmit_Success(t *testing.T) {
 	form.Add("state", "CA")
 	form.Add("country", "USA")
 	form.Add("affiliation", "student")
+	form.Add("onboarding", "invite")
 
 	req := newRequestWithSession(t, "POST", "/invite/", form.Encode(), "application/x-www-form-urlencoded")
 	rr := httptest.NewRecorder()
@@ -131,6 +132,7 @@ func TestInviteSubmit_AlreadyInvited(t *testing.T) {
 	form.Add("state", "CA")
 	form.Add("country", "USA")
 	form.Add("affiliation", "student")
+	form.Add("onboarding", "invite")
 
 	req := newRequestWithSession(t, "POST", "/invite/", form.Encode(), "application/x-www-form-urlencoded")
 	rr := httptest.NewRecorder()
@@ -165,6 +167,7 @@ func TestInviteSubmit_EmailExistsInIDM(t *testing.T) {
 	form.Add("state", "CA")
 	form.Add("country", "USA")
 	form.Add("affiliation", "student")
+	form.Add("onboarding", "invite")
 
 	req := newRequestWithSession(t, "POST", "/invite/", form.Encode(), "application/x-www-form-urlencoded")
 	rr := httptest.NewRecorder()

@@ -71,7 +71,83 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <div class="mb-3">
+                <label for="onboarding" class="form-label">Onboarding Options</label>
+                <select class="form-select" id="onboarding" name="onboarding" required>
+                    <option selected disabled>Choose...</option>
+                    <option value="invite">Only Invite (user selects username)</option>
+                    <option value="create">Create User and Invite</option>
+                </select>
+            </div>
+
+            <div class="mb-3 d-none" id="usernameWrapper">
+                <label for="username" class="form-label">Username</label>
+                <p style="font-size: smaller;" class="mb-0">
+                    Click check to validate username before submitting
+                </p>
+                <div class="d-flex align-items-center">
+                    <input type="text" class="form-control me-2" id="username" name="username" pattern="[a-z0-9]+">
+
+                    <button type="button" class="btn btn-sm d-flex align-items-center justify-content-center" id="checkUsername">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#e2793b" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+
+            <script>
+                document.getElementById('onboarding').addEventListener('change', function () {
+                    const wrapper = document.getElementById('usernameWrapper');
+                    const targetFormItem = document.getElementById('username');
+                    const firstName = document.getElementById('firstName').value;
+                    const lastName = document.getElementById('lastName').value;
+                    const allowed = Math.max(1, 6 - lastName.length);
+
+                    if (this.value === 'create') {
+                        wrapper.classList.remove('d-none');
+                        targetFormItem.required = true;
+                        document.getElementById('submit').disabled = true;
+                        targetFormItem.value = ( firstName.slice(0, allowed) + lastName ).toLowerCase();
+                    } else {
+                        wrapper.classList.add('d-none');
+                        targetFormItem.required = false;
+                        document.getElementById('submit').disabled = false;
+                    }
+                });
+            </script>
+            <script>
+                document.getElementById('checkUsername').addEventListener('click', async function () {
+                    const uname = document.getElementById('username').value.trim();
+
+                    if (!uname) {
+                        document.getElementById('submit').disabled = true;
+                        alert("username invalid");
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`/invite/validateUsernameOption?uname=${encodeURIComponent(uname)}`, {
+                            method: 'GET'
+                        });
+
+                        if (response.status === 200) {
+                            document.getElementById('submit').disabled = false;
+                        } else {
+                            document.getElementById('submit').disabled = true;
+                            alert("username invalid");
+                        }
+                    } catch (err) {
+                        document.getElementById('submit').disabled = true;
+                        alert("username invalid");
+                    }
+                });
+            </script>
+
+
+
+            <button type="submit" class="btn btn-primary mt-2" id="submit">Submit</button>
         </form>
 
         <div class="pt-5">
@@ -80,7 +156,7 @@
             </small>
         </div>
 
-        <div style="position: absolute; bottom: 0px; right: 0px;" class="p-3 text-body-tertiary">
+        <div style="position: fixed; bottom: 0px; right: 0px;" class="p-3 text-body-tertiary">
             <small>Powered by <a href="https://go.hadleyso.com/netid-activate-app" class="text-reset" target="_blank">NetID Activate</a></small>
         </div>
 
@@ -110,7 +186,6 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
         height: 80vh;
     }
 

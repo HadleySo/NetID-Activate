@@ -1,6 +1,7 @@
 package attribute
 
 import (
+	"encoding/json"
 	"math/rand/v2"
 	"strconv"
 	"strings"
@@ -10,6 +11,12 @@ import (
 )
 
 func GetLoginOptions(invite models.Invite) ([]string, error) {
+
+	if invite.Created {
+		var usernameSet []string
+		err := json.Unmarshal(invite.LoginNames, &usernameSet)
+		return usernameSet, err
+	}
 	loginNames := LoginGenerator(invite)
 
 	readyNames, err := idm.CheckUsernamesExists(loginNames)
