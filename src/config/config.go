@@ -28,6 +28,7 @@ type Config struct {
 	IDMPassword         string              `mapstructure:"IDM_PASSWORD" yaml:"IDM_PASSWORD"`
 	IDMAddGroup         string              `mapstructure:"IDM_ADD_GROUP" yaml:"IDM_ADD_GROUP"`
 	OptionalGroups      map[string][]Group  `mapstructure:"OPTIONAL_GROUPS" yaml:"OPTIONAL_GROUPS"`
+	ActivatedRole       string              `mapstructure:"ACTIVATED_ROLE" yaml:"ACTIVATED_ROLE"`
 }
 
 type Group struct {

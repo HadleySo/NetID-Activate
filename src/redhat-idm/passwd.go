@@ -16,7 +16,7 @@ func HandleResetPasswd(invite models.Invite, loginName string) (string, error) {
 	// Create client
 	client, errClient := newHTTPClient(false)
 	if errClient != nil {
-		log.Println("MakeUser() unable to newHTTPClient() " + errClient.Error())
+		log.Println("HandleResetPasswd() unable to newHTTPClient() " + errClient.Error())
 		return "", errClient
 	}
 
@@ -25,17 +25,29 @@ func HandleResetPasswd(invite models.Invite, loginName string) (string, error) {
 	password := viper.GetString("IDM_PASSWORD")
 	errLogin := login(client, username, password)
 	if errLogin != nil {
-		log.Println("MakeUser() unable to login() with HTTPClient " + errLogin.Error())
+		log.Println("HandleResetPasswd() unable to login() with HTTPClient " + errLogin.Error())
 		return "", errLogin
 	}
+
+	// Check if in activated role
+	// password change not allowed
+	errActivatedRole, isActivated := isActivatedRole(client, loginName)
+	if errActivatedRole != nil {
+		return "", fmt.Errorf("Error check if user activated role: " + errActivatedRole.Error())
+	}
+	if isActivated {
+		return "", fmt.Errorf("User already activated and password cannot be changed")
+	}
+
+	addActivatedRole(client, loginName)
 
 	// Generate password
 	pin := randPIN()
 
-	// Create user
+	// Set Password
 	_, err := setPassword(client, loginName, pin)
 	if err != nil {
-		log.Println("MakeUser() unable to makeUser() " + err.Error())
+		log.Println("HandleResetPasswd() unable to setPassword() " + err.Error())
 		return "", err
 	}
 

@@ -11,6 +11,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 
 	"errors"
@@ -142,6 +143,38 @@ func findUserByLogin(client *http.Client, loginName string) (any, error) {
 	}
 	if resp.Error != nil {
 		log.Println("findUserByEmail() response error")
+		return nil, fmt.Errorf("RPC error: %v", resp.Error.Message)
+	}
+	return resp.Result, nil
+}
+
+// Show user by login name
+// client must be authenticated
+func showUserByLogin(client *http.Client, loginName string) (any, error) {
+	rpcURL := viper.GetString("IDM_HOST") + "/ipa/session/json"
+	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
+		&jsonrpc.RPCClientOpts{
+			AllowUnknownFields: true, // IdM returns principal
+			CustomHeaders: map[string]string{
+				"Referer":      viper.GetString("IDM_HOST") + "/ipa",
+				"Content-Type": "application/json",
+				"Accept":       "application/json",
+			},
+			HTTPClient: client,
+		})
+
+	params := []any{
+		[]string{loginName},
+		map[string]any{"all": true},
+	}
+
+	resp, err := rpcClient.Call(context.Background(), "user_show", params...)
+	if err != nil {
+		log.Println("showUserByLogin() call error: " + err.Error())
+		return nil, err
+	}
+	if resp.Error != nil {
+		log.Println("showUserByLogin() response error")
 		return nil, fmt.Errorf("RPC error: %v", resp.Error.Message)
 	}
 	return resp.Result, nil
@@ -292,4 +325,78 @@ func makeCachedGetGroupBatch(client *http.Client) func([]string) (error, models.
 		response.Count = subResponse.Count + len(response.Results) // Combine with cached results
 		return nil, response
 	}
+}
+
+// Check if user in role
+// where user activated
+func isActivatedRole(client *http.Client, loginName string) (error, bool) {
+	ACTIVATED_ROLE := viper.GetString("ACTIVATED_ROLE")
+	if ACTIVATED_ROLE == "" {
+		return nil, false
+	}
+
+	rpcResponse, errRPC := showUserByLogin(client, loginName)
+	if errRPC != nil {
+		log.Println("isActivatedRole() unable to findUserByEmail() with authenticated HTTPClient " + errRPC.Error())
+		return errRPC, true
+	}
+	data, ok := rpcResponse.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("isActivatedRole() data unexpected response type: %T", rpcResponse), true
+	}
+	result, ok := data["result"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("isActivatedRole() result unexpected response type: %T", rpcResponse), true
+	}
+
+	member_of_role, exists := result["memberof_role"]
+
+	if exists {
+		raw := member_of_role.([]interface{})
+		roles := make([]string, len(raw))
+		for i, v := range raw {
+			roles[i] = v.(string)
+		}
+		if slices.Contains(roles, ACTIVATED_ROLE) {
+			return nil, true
+		}
+		return nil, false
+	}
+	return nil, false
+
+}
+
+func addActivatedRole(client *http.Client, loginName string) error {
+	ACTIVATED_ROLE := viper.GetString("ACTIVATED_ROLE")
+	if ACTIVATED_ROLE == "" {
+		return nil
+	}
+
+	rpcURL := viper.GetString("IDM_HOST") + "/ipa/session/json"
+	rpcClient := jsonrpc.NewClientWithOpts(rpcURL,
+		&jsonrpc.RPCClientOpts{
+			AllowUnknownFields: true, // IdM returns principal
+			CustomHeaders: map[string]string{
+				"Referer":      viper.GetString("IDM_HOST") + "/ipa",
+				"Content-Type": "application/json",
+				"Accept":       "application/json",
+			},
+			HTTPClient: client,
+		})
+
+	params := []any{
+		[]string{ACTIVATED_ROLE},
+		map[string]any{"all": true, "user": loginName},
+	}
+
+	resp, err := rpcClient.Call(context.Background(), "role_add_member", params...)
+	if err != nil {
+		log.Println("addActivatedRole() call error: " + err.Error())
+		return err
+	}
+	if resp.Error != nil {
+		log.Println("addActivatedRole() response error")
+		return fmt.Errorf("RPC error: %v", resp.Error.Message)
+	}
+	return nil
 }

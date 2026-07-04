@@ -238,7 +238,7 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send email
-	errMail := mailer.HandleSendInvite(email)
+	errMail := mailer.HandleSendInvite(email, username)
 	if errMail != nil {
 		log.Printf("Failed to send invite email: %v", errMail)
 		http.Redirect(w, r, "/500?error=mail+HandleSendInvite+error", http.StatusSeeOther)

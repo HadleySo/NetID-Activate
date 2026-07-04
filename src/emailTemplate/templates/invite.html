@@ -12,6 +12,11 @@
         You have been invited to create an account in {{.Tenant}}. Please visit <a
             href="{{.ServerURL}}">{{.ServerURL}}</a> to accept.
     </p>
+    {{ if .LoginName }}
+        <p>
+            Your login name is: <b>{{.LoginName}}</b>
+        </p>
+    {{- end}}
     <footer style="padding-top: 15px; font-size: small;">
         -- <br>
         {{ if .ServiceProvider }}
