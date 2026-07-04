@@ -31,6 +31,7 @@ type Invite struct {
 	LoginNames     datatypes.JSON `json:"login_names" gorm:"type:json"`
 	Inviter        string
 	OptionalGroups datatypes.JSON `json:"optional_groups" gorm:"type:json"`
+	Created        bool
 }
 
 type OTP struct {

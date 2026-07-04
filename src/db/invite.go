@@ -11,29 +11,37 @@ import (
 )
 
 // Add user to invited table
-func HandleInvite(firstName string, lastName string, email string, state string, country string, affiliation string, inviter string, optionalGroups []string) (bool, error) {
+func HandleInvite(firstName string, lastName string, email string, state string, country string, affiliation string, inviter string, optionalGroups []string, isCreated bool, preSelectUsername string) (bool, models.Invite, error) {
 
 	// Check if email formatted correctly
 	_, err := mail.ParseAddress(email)
 	if err != nil {
-		return false, nil
+		return false, models.Invite{}, nil
 	}
 
 	db := DbConnect()
 
 	optionalGroupsJson, err := json.Marshal(optionalGroups)
 	if err != nil {
-		return false, errors.New("Error marshalling OptionalGroups")
+		return false, models.Invite{}, errors.New("Error marshalling OptionalGroups")
 	}
-	userInvite := models.Invite{FirstName: firstName, LastName: lastName, Email: email, State: state, Country: country, Affiliation: affiliation, Inviter: inviter, OptionalGroups: optionalGroupsJson}
+
+	userNameJson, _ := json.Marshal([]string{})
+	if isCreated {
+		userNameJson, err = json.Marshal([]string{preSelectUsername})
+		if err != nil {
+			return false, models.Invite{}, errors.New("Error marshalling preSelectUsername")
+		}
+	}
+	userInvite := models.Invite{FirstName: firstName, LastName: lastName, Email: email, State: state, Country: country, Affiliation: affiliation, Inviter: inviter, OptionalGroups: optionalGroupsJson, Created: isCreated, LoginNames: userNameJson}
 	result := db.Create(&userInvite)
 
 	if result.Error != nil {
 		log.Println("Error in HandleInvite(): " + result.Error.Error())
-		return false, result.Error
+		return false, models.Invite{}, result.Error
 	}
 
-	return true, nil
+	return true, userInvite, nil
 
 }
 

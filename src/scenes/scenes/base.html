@@ -26,22 +26,26 @@
 
     <div class="container-fluid">
 
-        <div class="row d-flex py-2" id="search_header">
-            <nav class="navbar py-0">
-                <div class="container-fluid">
-                    <a class="navbar-brand ps-4-sm ps-0 py-0 overflow-x-hidden" href="/">
-                        {{ if gt (len .LogoURL) 1 }}
-                            <img src="{{.LogoURL}}" alt="" style="max-height: 50px; width: auto;" class="img-fluid"> <span class="fw-bolder">{{.PageTitle}}</span>
-                        {{ else }}
-                            <span class="fw-bolder">{{.PageTitle}}</span>
-                        {{end}}
-                    </a>
-                </div>
-            </nav>
+        <div class="py-2 sticky-top bg-white">
+            <div class="row d-flex" id="search_header">
+                <nav class="navbar py-0">
+                    <div class="container-fluid">
+                        <a class="navbar-brand ps-4-sm ps-0 py-0 overflow-x-hidden" href="/">
+                            {{ if gt (len .LogoURL) 1 }}
+                                <img src="{{.LogoURL}}" alt="" style="max-height: 50px; width: auto;" class="img-fluid"> <span class="fw-bolder">{{.PageTitle}}</span>
+                            {{ else }}
+                                <span class="fw-bolder">{{.PageTitle}}</span>
+                            {{end}}
+                        </a>
+                    </div>
+                </nav>
+            </div>
+            {{ template "bodyTitle" . }}
         </div>
 
 
-        <div class="container-fluid">
+
+        <div class="container-fluid px-0">
 
             {{ template "body" . }}
 

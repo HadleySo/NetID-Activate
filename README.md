@@ -121,7 +121,7 @@ Make a copy of [NETID.example.yaml](NETID.example.yaml) to `./NETID.yaml` or `./
     - `group_required` list of user groups that are allowed to add invitees, use `""` for all inviters to use 
     - If `memberManager` is set to `true` then LDAP attribute `memberManager` will be use to determine if the inviter can add the invitee to the group. Does support `membermanager_group`. 
     - If `memberManager` is set to `true`, the value of `group_required` is ignored
-
+- `ACTIVATED_ROLE`: Role to add activated users to. Used to prevent activating users that have already been activated
 
 ## License  
 

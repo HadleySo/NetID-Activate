@@ -34,13 +34,13 @@ func TestHandleInvite(t *testing.T) {
 	db := setupTestDBForInvite(t)
 
 	// Invalid email
-	success, err := HandleInvite("John", "Doe", "invalid-email", "CA", "USA", "Student", "inviter1", []string{"group1"})
+	success, _, err := HandleInvite("John", "Doe", "invalid-email", "CA", "USA", "Student", "inviter1", []string{"group1"}, false, "")
 	assert.NoError(t, err)
 	assert.False(t, success)
 
 	// Valid invite
 	optionalGroups := []string{"group1", "group2"}
-	success, err = HandleInvite("Jane", "Doe", "jane.doe@example.com", "NY", "USA", "Faculty", "inviter2", optionalGroups)
+	success, _, err = HandleInvite("Jane", "Doe", "jane.doe@example.com", "NY", "USA", "Faculty", "inviter2", optionalGroups, false, "")
 	assert.NoError(t, err)
 	assert.True(t, success)
 

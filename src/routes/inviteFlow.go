@@ -10,6 +10,7 @@ func invite() {
 	authedRouter.Use(auth.MiddleValidateSession)
 
 	Router.HandleFunc("/invite", handlers.InviteGet).Methods("GET")
+	authedRouter.HandleFunc("/validateUsernameOption", handlers.ValidateUsername).Methods("GET")
 	authedRouter.HandleFunc("/", handlers.InviteLandingPage).Methods("GET")
 	authedRouter.HandleFunc("/", handlers.InviteSubmit).Methods("POST")
 	authedRouter.HandleFunc("/sent", handlers.GetSent).Methods("GET")

@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/mail"
+	"regexp"
 	"strings"
 	"text/template"
 
@@ -91,12 +92,34 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 	state := strings.TrimSpace(r.Form.Get("state"))
 	country := strings.TrimSpace(r.Form.Get("country"))
 	affiliation := strings.TrimSpace(r.Form.Get("affiliation"))
+	onboarding := strings.TrimSpace(r.Form.Get("onboarding"))
+	username := strings.TrimSpace(r.Form.Get("username"))
+
+	inviteAndCreate := onboarding == "create"
 
 	// Check if email formatted correctly
 	_, err := mail.ParseAddress(email)
 
+	// Check if username formatted correctly
+	var usernameRe = regexp.MustCompile(`^[a-z0-9]+$`)
+	if !usernameRe.MatchString(username) && inviteAndCreate {
+		tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
+		tmpl.ExecuteTemplate(w, "base",
+			struct {
+				Tile    string
+				Message string
+				models.PageBase
+			}{
+				Message:  "Username has invalid characters",
+				Tile:     "Invite Form",
+				PageBase: models.NewPageBase(""),
+			},
+		)
+		return
+	}
+
 	// Check filled out
-	if firstName == "" || lastName == "" || email == "" || state == "" || country == "" || affiliation == "" || err != nil || countries.Alpha3Exists(country) == false {
+	if firstName == "" || lastName == "" || email == "" || state == "" || country == "" || affiliation == "" || onboarding == "" || err != nil || countries.Alpha3Exists(country) == false {
 		tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
 		tmpl.ExecuteTemplate(w, "base",
 			struct {
@@ -129,6 +152,54 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
+	emailExists, err := idm.CheckEmailExists(email)
+	if err != nil {
+		log.Printf("Error checking email existence: %v", err)
+		http.Redirect(w, r, "/500?error=check+email+exists+error", http.StatusSeeOther)
+		return
+	}
+
+	// Check if user already exists via IdM check.
+	if emailExists {
+		tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
+		tmpl.ExecuteTemplate(w, "base",
+			struct {
+				Tile    string
+				Message string
+				models.PageBase
+			}{
+				Message:  "User already has an account via IdM. Please use the standard activation flow.",
+				Tile:     "Invite Form",
+				PageBase: models.NewPageBase(""),
+			},
+		)
+		return
+	}
+
+	// Check if username exists
+	if inviteAndCreate {
+		usernameExists, err := idm.CheckUsernamesExists([]string{username})
+		if err != nil {
+			log.Printf("Error checking username existence: %v", err)
+			http.Redirect(w, r, "/500?error=check+username+exists+error", http.StatusSeeOther)
+			return
+		}
+		if len(usernameExists) != 1 {
+			tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
+			tmpl.ExecuteTemplate(w, "base",
+				struct {
+					Tile    string
+					Message string
+					models.PageBase
+				}{
+					Message:  "Username already in use.",
+					Tile:     "Invite Form",
+					PageBase: models.NewPageBase(""),
+				},
+			)
+			return
+		}
+	}
 
 	// Get inviter
 	user, errUser := auth.GetUser(w, r)
@@ -152,14 +223,33 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Check if email in directory
-	emailExists, err := idm.CheckEmailExists(email)
+	// Get inviter info
+	inviter := user.PreferredUsername
+
+	// Add invite to DB
+	dbSuccess, userInvite, err := db.HandleInvite(firstName, lastName, email, state, country, affiliation, inviter, optionalGroups, inviteAndCreate, username)
 	if err != nil {
-		http.Redirect(w, r, "/500?error=error+in+CheckEmailExists", http.StatusSeeOther)
+		http.Redirect(w, r, "/500?error=db+HandleInvite+error", http.StatusSeeOther)
+		return
+	}
+	if !dbSuccess {
+		http.Redirect(w, r, "/500?error=db+HandleInvite+error", http.StatusSeeOther)
 		return
 	}
 
-	if emailExists {
+	// Send email
+	errMail := mailer.HandleSendInvite(email, username)
+	if errMail != nil {
+		log.Printf("Failed to send invite email: %v", errMail)
+		http.Redirect(w, r, "/500?error=mail+HandleSendInvite+error", http.StatusSeeOther)
+		return
+	}
+
+	successMessage := "Success, " + "an email has been sent to " + firstName + "'s " + email + " inbox."
+
+	// If invite only, return now and don't create
+	if onboarding == "invite" {
+
 		tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
 		tmpl.ExecuteTemplate(w, "base",
 			struct {
@@ -167,7 +257,7 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 				Message string
 				models.PageBase
 			}{
-				Message:  "User already has an account",
+				Message:  successMessage,
 				Tile:     "Invite Form",
 				PageBase: models.NewPageBase(""),
 			},
@@ -175,24 +265,13 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get inviter info
-	inviter := user.PreferredUsername
-
-	// Add to DB
-	dbSuccess, err := db.HandleInvite(firstName, lastName, email, state, country, affiliation, inviter, optionalGroups)
-	if dbSuccess == false {
-		http.Redirect(w, r, "/500?error=DB+HandleInvite+error", http.StatusSeeOther)
+	_, errMakeUser := idm.HandleMakeUser(userInvite, username)
+	if errMakeUser != nil {
+		log.Printf("Error during user creation attempt: %v", err)
+		db.DeleteInviteEmail(email)
+		http.Redirect(w, r, "/500?error=user+creation+failure", http.StatusSeeOther)
 		return
 	}
-
-	// Send email
-	errMail := mailer.HandleSendInvite(email)
-	if errMail != nil {
-		http.Redirect(w, r, "/500?error=mail+HandleSendInvite+error", http.StatusSeeOther)
-		return
-	}
-
-	successMessage := "Success, " + "an email has been sent to " + firstName + "'s " + email + " inbox."
 
 	tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
 	tmpl.ExecuteTemplate(w, "base",
@@ -206,4 +285,30 @@ func InviteSubmit(w http.ResponseWriter, r *http.Request) {
 			PageBase: models.NewPageBase(""),
 		},
 	)
+	return
+}
+
+func ValidateUsername(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	username := strings.TrimSpace(params.Get("uname"))
+
+	var usernameRe = regexp.MustCompile(`^[a-z0-9]+$`)
+	if !usernameRe.MatchString(username) {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	usernameExists, err := idm.CheckUsernamesExists([]string{username})
+	if err != nil {
+		log.Printf("ValidateUsername Error checking username existence: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if len(usernameExists) != 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+
 }

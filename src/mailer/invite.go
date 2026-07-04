@@ -16,7 +16,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func HandleSendInvite(email string) error {
+func HandleSendInvite(email string, username string) error {
 
 	// 1. Load AWS SDK configuration (uses env vars)
 	ctx := context.Background()
@@ -53,12 +53,14 @@ func HandleSendInvite(email string) error {
 		SiteName        string
 		Tenant          string
 		ServerURL       string
+		LoginName       string
 	}{
 		ServiceProvider: viper.GetString("LINK_SERVICE_PROVIDER"),
 		PrivacyPolicy:   viper.GetString("LINK_PRIVACY_POLICY"),
 		SiteName:        viper.GetString("SITE_NAME"),
 		Tenant:          viper.GetString("TENANT_NAME"),
 		ServerURL:       serverURL,
+		LoginName:       username,
 	}
 	// 4. Execute into buffers
 	var htmlBody, textBody bytes.Buffer

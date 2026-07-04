@@ -111,6 +111,7 @@ func makeUser(client *http.Client, uid string, email string, firstName string, l
 		},
 	}
 
+	// stageuser_add won't work as they cannot be added to groups
 	resp, err := rpcClient.Call(context.Background(), "user_add", params...)
 	if err != nil {
 		log.Println("makeUser() call error " + err.Error())

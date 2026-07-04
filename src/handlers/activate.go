@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/gob"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -136,7 +137,9 @@ func ActivateOTPPost(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/500", http.StatusSeeOther)
 		return
 	}
-	db.SetLoginNames(usernameOptions, inviteID)
+	if !invite.Created {
+		db.SetLoginNames(usernameOptions, inviteID)
+	}
 
 	// Set auth cookie
 	if SessionCookieStore == nil {
@@ -242,48 +245,62 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check user doesn't exist (email)
-	emailExists, err := idm.CheckEmailExists(invite.Email)
-	if err != nil {
-		log.Println("Call to CheckEmailExists() in CreateUser() src/handlers/activate.go error - " + err.Error())
-		http.Redirect(w, r, "/500", http.StatusSeeOther)
-		return
-	}
+	var passwd string
 
-	// Check user doesn't exist (username)
-	var usernameUsed bool
-	if emailExists == false {
-		readyNames, err := idm.CheckUsernamesExists([]string{loginName})
+	fmt.Printf("invite.Created: %v\n", invite.Created)
+
+	if !invite.Created {
+
+		// Check user doesn't exist (email)
+		emailExists, err := idm.CheckEmailExists(invite.Email)
 		if err != nil {
-			log.Println("Call to CheckUsernamesExists() in CreateUser() src/handlers/activate.go error - " + err.Error())
+			log.Println("Call to CheckEmailExists() in CreateUser() src/handlers/activate.go error - " + err.Error())
 			http.Redirect(w, r, "/500", http.StatusSeeOther)
 			return
 		}
-		usernameUsed = len(readyNames) == 0
-	}
 
-	if emailExists || usernameUsed {
-		tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
-		tmpl.ExecuteTemplate(w, "base",
-			struct {
-				Tile    string
-				Message string
-				models.PageBase
-			}{
-				Message:  "Your account already exists, please login at: " + viper.GetString("LOGIN_REDIRECT"),
-				Tile:     "Activation",
-				PageBase: models.NewPageBase(""),
-			},
-		)
-		return
-	}
+		// Check user doesn't exist (username)
+		var usernameUsed bool
+		if emailExists == false {
+			readyNames, err := idm.CheckUsernamesExists([]string{loginName})
+			if err != nil {
+				log.Println("Call to CheckUsernamesExists() in CreateUser() src/handlers/activate.go error - " + err.Error())
+				http.Redirect(w, r, "/500", http.StatusSeeOther)
+				return
+			}
+			usernameUsed = len(readyNames) == 0
+		}
 
-	// Call maker
-	passwd, err := idm.HandleMakeUser(invite, loginName)
-	if err != nil {
-		log.Println("Call to HandleMakeUser() in CreateUser() src/handlers/activate.go error - " + err.Error())
-		http.Redirect(w, r, "/500", http.StatusSeeOther)
-		return
+		if emailExists || usernameUsed {
+			tmpl := template.Must(template.ParseFS(scenes.TemplateFS, "scenes/400.html", "scenes/base.html"))
+			tmpl.ExecuteTemplate(w, "base",
+				struct {
+					Tile    string
+					Message string
+					models.PageBase
+				}{
+					Message:  "Your account already exists, please login at: " + viper.GetString("LOGIN_REDIRECT"),
+					Tile:     "Activation",
+					PageBase: models.NewPageBase(""),
+				},
+			)
+			return
+		}
+
+		// Call maker
+		passwd, err = idm.HandleMakeUser(invite, loginName)
+		if err != nil {
+			log.Println("Call to HandleMakeUser() in CreateUser() src/handlers/activate.go error - " + err.Error())
+			http.Redirect(w, r, "/500", http.StatusSeeOther)
+			return
+		}
+	} else {
+		passwd, err = idm.HandleResetPasswd(invite, loginName)
+		if err != nil {
+			log.Println("Call to HandleMakeUser() in HandleResetPasswd() src/handlers/activate.go error - " + err.Error())
+			http.Redirect(w, r, "/500", http.StatusSeeOther)
+			return
+		}
 	}
 
 	// Delete invite
