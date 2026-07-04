@@ -1,45 +1,52 @@
-{{define "head"}}{{end}}
+{{define "head"}}
+<meta http-equiv="Cache-Control" content="no-store" />
+{{end}}
 
-
+{{define "bodyTitle"}}
+    <div class="row">
+        <h3 style="margin-left: auto;margin-right: auto;" class="landerCenter px-0">
+            Invite User
+        </h3>
+    </div>
+{{end}}
 
 {{define "body"}}
 
 <div class="wrapper">
+    
     <div class="landerCenter" id="formWrapper">
-        <h3>
-            Invite User
-        </h3>
         <p class="pb-1">
             <small>
-                Please fill in with information about the user you are inviting.
+                Fill in this section with details about the invited user.
             </small>
         </p>
+
         <form action="/invite/" method="POST" onsubmit="submitLoader()">
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="firstName" class="form-label">First Name</label>
+                    <label for="firstName">First Name</label>
                     <input type="text" class="form-control" id="firstName" name="firstName" placeholder="John" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="lastName" class="form-label">Last Name</label>
+                    <label for="lastName">Last Name</label>
                     <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Doe" required>
                 </div>
             </div>
 
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email">Email</label>
                 <input type="email" class="form-control" id="email" name="email" placeholder="user@example.com" required>
             </div>
 
             <div class="mb-3">
-                <label for="state" class="form-label">State/Province</label>
+                <label for="state">State/Province</label>
                 <input type="text" class="form-control" id="state" name="state" placeholder="Anytown" required>
             </div>
 
             <div class="mb-3">
-                <label for="country" class="form-label">Country</label>
+                <label for="country">Country</label>
                 <select class="form-select" id="country" name="country" required>
-                    <option selected disabled>Choose...</option>
+                    <option value="" selected disabled>Choose...</option>
                     {{ range .Countries }}
                         <option value="{{.Alpha3}}">{{.Name}}</option>
                     {{ end }}
@@ -49,7 +56,7 @@
 
             {{ if gt (len .OptionalGroup) 0 }}
                 <div class="mb-3">
-                    <label for="groupOptional" class="form-label">Optional Groups</label>
+                    <label for="groupOptional">Optional Groups</label>
                     {{range $key, $value := .OptionalGroup}}
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="{{$key}}" id="groupOptional-{{$key}}" value="yes">
@@ -62,9 +69,9 @@
             {{end}}
 
             <div class="mb-3">
-                <label for="affiliation" class="form-label">Affiliation</label>
+                <label for="affiliation">Affiliation</label>
                 <select class="form-select" id="affiliation" name="affiliation" required>
-                    <option selected disabled>Choose...</option>
+                    <option value="" selected disabled>Choose...</option>
                     {{range $key, $value := .Affiliation}}
                         <option value="{{$key}}">{{$value}}</option>
                     {{end}}
@@ -72,16 +79,16 @@
             </div>
 
             <div class="mb-3">
-                <label for="onboarding" class="form-label">Onboarding Options</label>
+                <label for="onboarding">Onboarding Options</label>
                 <select class="form-select" id="onboarding" name="onboarding" required>
-                    <option selected disabled>Choose...</option>
+                    <option value="" selected disabled>Choose...</option>
                     <option value="invite">Only Invite (user selects username)</option>
                     <option value="create">Create User and Invite</option>
                 </select>
             </div>
 
             <div class="mb-3 d-none" id="usernameWrapper">
-                <label for="username" class="form-label">Username</label>
+                <label for="username">Username</label>
                 <p style="font-size: smaller;" class="mb-0">
                     Click check to validate username before submitting
                 </p>
@@ -203,6 +210,13 @@
 
     input[type="number"] {
         -moz-appearance: textfield;
+    }
+    input.form-control:placeholder-shown,
+    .form-select:invalid,
+    .form-select option[value=""] {
+        background-color: #e9ecef !important;
+        border-color: black;
+        border-width: 0.8px;
     }
 </style>
 {{end}}

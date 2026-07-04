@@ -2,6 +2,9 @@ Hello,
 
 You have been invited to create an account in {{.Tenant}}. Please visit {{.ServerURL}} to accept.
 
+{{ if .LoginName }}
+Your login name is: <b>{{.LoginName}}
+{{- end}}
 
 {{ if .ServiceProvider }}
 Service Provider: {{.ServiceProvider}} 
