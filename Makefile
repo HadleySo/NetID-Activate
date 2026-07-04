@@ -1,6 +1,6 @@
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
-VERSION=0.4.0
+VERSION=0.4.1
 HASH ?= $(shell git rev-parse HEAD)
 BINARY_NAME=NetIdActivate_$(VERSION)_$(GOOS)_$(GOARCH)
 

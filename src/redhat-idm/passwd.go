@@ -39,8 +39,6 @@ func HandleResetPasswd(invite models.Invite, loginName string) (string, error) {
 		return "", fmt.Errorf("User already activated and password cannot be changed")
 	}
 
-	addActivatedRole(client, loginName)
-
 	// Generate password
 	pin := randPIN()
 
@@ -50,6 +48,8 @@ func HandleResetPasswd(invite models.Invite, loginName string) (string, error) {
 		log.Println("HandleResetPasswd() unable to setPassword() " + err.Error())
 		return "", err
 	}
+
+	addActivatedRole(client, loginName)
 
 	return pin, nil
 }
