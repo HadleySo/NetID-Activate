@@ -26,19 +26,28 @@
 
     <div class="container-fluid">
 
-        <div class="py-2 sticky-top bg-white">
-            <div class="row d-flex" id="search_header">
-                <nav class="navbar py-0">
-                    <div class="container-fluid">
-                        <a class="navbar-brand ps-4-sm ps-0 py-0 overflow-x-hidden" href="/">
-                            {{ if gt (len .LogoURL) 1 }}
-                                <img src="{{.LogoURL}}" alt="" style="max-height: 50px; width: auto;" class="img-fluid"> <span class="fw-bolder">{{.PageTitle}}</span>
-                            {{ else }}
-                                <span class="fw-bolder">{{.PageTitle}}</span>
-                            {{end}}
-                        </a>
-                    </div>
-                </nav>
+        <div class="sticky-top bg-white">
+            <div class="row pt-1" id="search_header">
+                <div class="col d-flex align-items-center">
+                    <a class="navbar-brand py-0 overflow-x-hidden text-truncate fs-4" href="/">
+                        {{ if gt (len .LogoURL) 1 }}
+                            <img src="{{.LogoURL}}" alt="" style="max-height: 50px; width: auto;" class="img-fluid"> <span class="fw-bolder">{{.PageTitle}}</span>
+                        {{ else }}
+                            <span class="fw-bolder">{{.PageTitle}}</span>
+                        {{end}}
+                    </a>
+                    <a href="/logout" class="btn ms-auto text-nowrap p-0" style="display: none;" id="logoutButton">
+                        End Session
+                    </a>
+                    <script>
+                        if (location.pathname.startsWith("/invite/")) {
+                            const logoutDiv = document.getElementById("logoutButton");
+                            if (logoutDiv) {
+                                logoutDiv.style.display = "block";
+                            }
+                        }
+                    </script>
+                </div>
             </div>
             {{ template "bodyTitle" . }}
         </div>
