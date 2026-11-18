@@ -21,14 +21,23 @@ jobs:
           go-version: '1.27.4'
           cache: true
 
-      - name: Install Make
-        run: sudo apt-get update && sudo apt-get install -y make
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make gcc-aarch64-linux-gnu libc6-dev-arm64-cross
 
       - name: Download dependencies
         run: go mod download
 
-      - name: Build
-        run: GOOS=linux GOARCH=arm64 CGO_ENABLED=0 make build
+      - name: Build ARM64
+        env:
+          GOOS: linux
+          GOARCH: arm64
+          CGO_ENABLED: 1
+          CC: aarch64-linux-gnu-gcc
+          CGO_CFLAGS: -O2
+          CGO_LDFLAGS: -O2
+        run: make build
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
