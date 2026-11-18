@@ -1,0 +1,39 @@
+
+name: Build Go Application
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.4'
+          cache: true
+
+      - name: Install Make
+        run: sudo apt-get update && sudo apt-get install -y make
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Build
+        run: make build
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetIdActivate_${{ github.sha }}
+          path: bin/NetIdActivate_*
+          if-no-files-found: error
+          retention-days: 1
